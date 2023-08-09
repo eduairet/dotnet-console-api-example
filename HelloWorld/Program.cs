@@ -46,15 +46,21 @@ double mySecondDouble = 0.75d;
 decimal myDecimal = 0.751m;
 decimal mySecondDecimal = 0.75m;
 
-// Console.WriteLine(myFloat - mySecondFloat);
-// Console.WriteLine(myDouble - mySecondDouble);
-// Console.WriteLine(myDecimal - mySecondDecimal);
+Console.WriteLine(myFloat - mySecondFloat); // 0.0009999871
+Console.WriteLine(myDouble - mySecondDouble); // 0.0010000000000000009
+Console.WriteLine(myDecimal - mySecondDecimal); // 0.001
 
+Console.WriteLine(0.551f - 0.55f); // 0.0009999871
+Console.WriteLine(0.551 - 0.55); // 0.0010000000000000009
+Console.WriteLine(0.551m - 0.55m); // 0.001
 
-
+char myChar = 'A';
 string myString = "Hello World";
-// Console.WriteLine(myString);
+Console.WriteLine(myString);
 string myStringWithSymbols = "!@#$@^$%%^&(&%^*__)+%^@##$!@%123589071340698ughedfaoig137";
-// Console.WriteLine(myStringWithSymbols);
+Console.WriteLine(myStringWithSymbols);
 
 bool myBool = true;
+System.Boolean myCopycatBool = true;
+Console.WriteLine(myBool);
+Console.WriteLine(myCopycatBool);
