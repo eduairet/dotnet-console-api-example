@@ -1,4 +1,4 @@
-# Operators and Conditionals
+# Operators and Comparison
 
 -   Number operations
 
