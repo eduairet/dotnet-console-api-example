@@ -1,15 +1,18 @@
-﻿//// 1 byte is made up of 8 bits 00000000 - these bits can be used to store a number as follows
-// //// Each bit can be worth 0 or 1 of the value it is placed in
-// ////// From the right we start with a value of 1 and double for each digit to the left
-// //// 00000000 = 0 bits
-// //// 00000001 = 1 bit
-// //// 00000010 = 2 bits
-// //// 00000011 = 3 bits
-// //// 00000100 = 4 bits
-// //// 00000101 = 5 bits
-// //// 00000110 = 6 bits
-// //// 00000111 = 7 bits
-// //// 00001000 = 8 bits
+﻿/*
+// Basic types
+
+// 1 byte is made up of 8 bits 00000000 - these bits can be used to store a number as follows
+// Each bit can be worth 0 or 1 of the value it is placed in
+// From the right we start with a value of 1 and double for each digit to the left
+// 00000000 = 0 bits
+// 00000001 = 1 bit
+// 00000010 = 2 bits
+// 00000011 = 3 bits
+// 00000100 = 4 bits
+// 00000101 = 5 bits
+// 00000110 = 6 bits
+// 00000111 = 7 bits
+// 00001000 = 8 bits
 
 // 1 byte (8 bit) unsigned, where signed means it can be negative
 byte myByte = 255;
@@ -64,3 +67,49 @@ bool myBool = true;
 System.Boolean myCopycatBool = true;
 Console.WriteLine(myBool);
 Console.WriteLine(myCopycatBool);
+
+*/
+
+// Data Structures
+
+string[] names = new string[3];
+names[0] = "John";
+names[1] = "Edu";
+Console.WriteLine(names[0]); // John
+Console.WriteLine(names[1]); // Edu
+Console.WriteLine(names[2]); // It will print an empty space
+//Console.WriteLine(names[3]); // It will return an error
+// Unhandled exception. System.IndexOutOfRangeException: Index was outside the bounds of the array.
+
+string[] fruits = {"Apple", "Banana"};
+Console.WriteLine(fruits[0]); // Apple
+List<string> vegetables = new() { "Carrot", "Cucumber" };
+Console.WriteLine(vegetables[0]); // Carrot
+vegetables.Add("Onion");
+Console.WriteLine(vegetables[2]); // Onion
+
+IEnumerable<string> ieVegetables = vegetables;
+Console.WriteLine(ieVegetables.First()); // Carrot
+Console.WriteLine(ieVegetables.ElementAt(1)); // Cucumber
+
+string[,] coords = {
+    { "1", "2" },
+    { "3", "4" },
+    { "5", "6" },
+};
+Console.WriteLine(coords[0, 0]); // 1
+
+Dictionary<string, string> students = new() {
+    { "John", "A" },
+    { "Edu", "B" },
+    { "Lisa", "C" },
+    { "Laura", "D" },
+    { "Luke", "E" }
+};
+Console.WriteLine(students["John"]); // A
+
+Dictionary<string, string[]> tasks = new() {
+    { "John", new string[] { "Do homework", "Take a shower" } },
+    { "Edu", new string[] { "Cook a meal", "Watch a movie" } }
+};
+Console.WriteLine(tasks["John"][0]); // Do homework
