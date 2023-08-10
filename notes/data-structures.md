@@ -20,7 +20,7 @@
     ```CSHARP
     List<string> vegetables = new List<string>(); // No values
     List<string> vegetables = new List<string>() { "Carrot" }; // Values
-    // Or in a simplified way
+    // Or in a simplified way (check if your .NET version supports it)
     List<string> vegetables = new() { "Carrot", "Cucumber" };
     Console.WriteLine(vegetables[0]); // Carrot
     vegetables.Add("Onion"); // With lists we can add any element
@@ -54,6 +54,7 @@
 -   `Dictionary` is a structure that has keys instead indexes
 
     ```CSHARP
+    // Simplified construction way (check your .NET version)
     Dictionary<string, string> students = new() {
         { "John", "A" },
         { "Edu", "B" },
@@ -65,7 +66,7 @@
     Console.WriteLine(students["John"]); // A
 
     // You can nest data structures inside a dictionary
-    Dictionary<string, string[]> tasks = new() {
+    Dictionary<string, string[]> tasks = new Dictionary<string, string[]>() {
         { "John", new string[] { "Do homework", "Take a shower" } },
         { "Edu", new string[] { "Cook a meal", "Watch a movie" } }
     };

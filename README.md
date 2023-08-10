@@ -31,3 +31,4 @@
 
 1. [Writing to the Console and C# Basic Types](./notes/console-basic-types.md)
 2. [Data Structures](./notes/data-structures.md)
+3. [Operators and Conditionals](./notes/operators-conditionals.md)
