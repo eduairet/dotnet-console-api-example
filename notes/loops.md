@@ -1,4 +1,9 @@
-﻿int[] ints = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+# Loops
+
+-   Loops make out bulk operations faster than do them manually
+
+```CSHARP
+int[] ints = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 int intsTotal = 0;
 
 // for loop
@@ -61,3 +66,4 @@ foreach (int i in ints)
     }
 }
 Console.WriteLine(intsTotal); // 305
+```

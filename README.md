@@ -33,3 +33,4 @@
 2. [Data Structures](./notes/data-structures.md)
 3. [Operators and Comparison](./notes/operators-comparison.md)
 4. [Conditional Statements](./notes/conditional-statements.md)
+5. [Loops](./notes/loops.md)
