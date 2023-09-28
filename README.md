@@ -34,4 +34,6 @@
 3. [Operators and Comparison](./notes/operators-comparison.md)
 4. [Conditional Statements](./notes/conditional-statements.md)
 5. [Loops](./notes/loops.md)
-5. [Methods](./notes/methods.md)
+6. [Methods](./notes/methods.md)
+7. [Scope](./notes/scope.md)
+8. [Models](./notes/models.md)

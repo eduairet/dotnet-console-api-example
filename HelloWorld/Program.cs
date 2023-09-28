@@ -1,78 +1,57 @@
-﻿int[] ints = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-int intsTotal = 0;
+﻿using HelloWorld;
 
-static void printExecutionTime(DateTime startTime)
+namespace HelloWorld
 {
-    Console.WriteLine((DateTime.Now - startTime).TotalSeconds);
-}
-
-// for loop
-var startTime = DateTime.Now;
-for (int i = 0; i < ints.Length; i++)
-{
-    intsTotal += ints[i];
-}
-Console.WriteLine(intsTotal); // 55
-printExecutionTime(startTime); // 0.0079095
-
-// foreach loop is faster than the for loop (more readable)
-startTime = DateTime.Now;
-foreach (int i in ints)
-{
-    intsTotal += i;
-}
-Console.WriteLine(intsTotal); // 110
-printExecutionTime(startTime); // 0.0001872
-
-// The while loop executes until a condition is matched
-int index = 0;
-startTime = DateTime.Now;
-while (index < ints.Length)
-{
-    intsTotal += ints[index];
-    index++;
-}
-Console.WriteLine(intsTotal); // 165
-printExecutionTime(startTime); // 0.0001059
-
-// The do while loop is similar to the while loop
-// but executes the logic first and then checks the condition
-// this will ensure at least one run
-index = 0;
-startTime = DateTime.Now;
-do
-{
-    intsTotal += ints[index];
-    index++;
-}
-while (index < ints.Length);
-Console.WriteLine(intsTotal); // 220
-printExecutionTime(startTime); // 0.0001219
-
-// Loops have better performance even compared with some built-in methods
-// take this in count when optimization is needed
-startTime = DateTime.Now;
-intsTotal += ints.Sum();
-Console.WriteLine(intsTotal); // 275
-printExecutionTime(startTime); // 0.0028676
-
-// Loops and conditions can be combined to create powerful logic
-foreach (int i in ints)
-{
-    if (i % 2 == 0)
+    public class User
     {
-        // Only adds even numbers to the total
-        intsTotal += i;
+        // Public keyword makes the property visible to other classes.
+        // Required keyword makes the property required to have a value.
+        // With get and set keywords, we can access the property. 
+        // { get; set; } = { get => _password; set => _password = value; }
+        public required string Username { get; set; }
+        // string? makes the property nullable.
+        public string FullName { get; set; }
+        public bool IsActive { get; set; }
+        // Private keyword makes the property not visible to other classes.
+        // It's a good practice to ghost the name of the variable in these cases.
+        private string? _password; // Adding ; creates a field inside classes
+        // Never use public variables as fields.
+        public void SetPassword(string password)
+        {
+            _password = password;
+        }
+        // Constructor
+        public User()
+        {
+            /*          
+            ?? avoids nullable string warning,
+            an if statement can be used as well,
+            or even by setting the default value to the property
+            outside of the constructor with something like
+            public string FullName { get; set; }
+            */
+            Username ??= "";
+            FullName ??= "";
+        }
     }
 }
-Console.WriteLine(intsTotal); // 305
 
-
-int total = 0;
-DateTime start = DateTime.Now;
-for (int i = 1; i < 1000; i++)
+internal class Program
 {
-    total += i; 
+    static void Main(string[] args)
+    {
+        User newUser = new()
+        {
+            Username = "XXXX",
+            FullName = "User User",
+            IsActive = true,
+        };
+        newUser.SetPassword("XXXXXXXX");
+        Console.WriteLine(newUser.Username); // XXXX
+        Console.WriteLine(newUser.FullName); // User User
+        Console.WriteLine(newUser.IsActive); // True
+        // newUser._password is not accessible outside the class.
+        newUser.Username = "Lalo"; // Here we use the setter to change the value.
+        Console.WriteLine(newUser.Username); // Lalo
+    }
 }
-Console.WriteLine(total); // 499501
-printExecutionTime(start); // 0.0002616
