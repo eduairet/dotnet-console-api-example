@@ -37,3 +37,4 @@
 6. [Methods](./notes/methods.md)
 7. [Scope](./notes/scope.md)
 8. [Models](./notes/models.md)
+9. [Namespaces](./notes/namespaces.md)
