@@ -38,3 +38,4 @@
 7. [Scope](./notes/scope.md)
 8. [Models](./notes/models.md)
 9. [Namespaces](./notes/namespaces.md)
+10. [MS SQL Database Connection](./notes/sql-connection.md)
