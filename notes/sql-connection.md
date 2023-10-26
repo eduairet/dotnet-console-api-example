@@ -101,3 +101,17 @@
     DateTime rightNow = dbConnection.QuerySingle<DateTime>(sqlCommand);
     Console.WriteLine(rightNow); // Today's date
     ```
+
+## Dapper
+
+-   Allows to handle sql queries in a more easier way
+    -   Instead of querying with a native string:
+        ```CSHARP
+        string sqlQuerySelect = @"
+            SELECT _user.Username,
+                    _user.FullName,
+                    _user.IsActive
+                FROM UserSchema._user";
+        IEnumerable<User> results = dbConnection.Query<User>(sqlQuerySelect);
+        ```
+    -   We can use Dapper and do it this way

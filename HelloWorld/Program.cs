@@ -8,6 +8,10 @@ namespace HelloWorld
 {
     public class Program
     {
+        private static string SingleQuotes(string raw)
+        {
+            return "'" + raw + "'";
+        }
         public static void Main(string[] args)
         {
             var connectionOptions = new List<string>()
@@ -29,13 +33,32 @@ namespace HelloWorld
                 FullName = "User User",
                 IsActive = true,
             };
-            newUser.SetPassword("XXXXXXXX");
-            Console.WriteLine(newUser.Username); // XXXX
-            Console.WriteLine(newUser.FullName); // User User
-            Console.WriteLine(newUser.IsActive); // True
-                                                 // newUser._password is not accessible outside the class.
-            newUser.Username = "Lalo"; // Here we use the setter to change the value.
-            Console.WriteLine(newUser.Username); // Lalo
+
+            string sql = @"
+                INSERT INTO UserSchema._user (
+                    Username, FullName, IsActive
+                ) VALUES (" + SingleQuotes(newUser.Username) +
+                    "," + SingleQuotes(newUser.FullName) +
+                    "," + SingleQuotes(newUser.IsActive.ToString()) +
+                ")";
+            int result = dbConnection.Execute(sql);
+            Console.WriteLine(result);
+
+            string sqlQuerySelect = @"
+                SELECT _user.Username,
+                       _user.FullName,
+                       _user.IsActive
+                  FROM UserSchema._user";
+            IEnumerable<User> results = dbConnection.Query<User>(sqlQuerySelect);
+            foreach (User user in results)
+            {
+                Console.WriteLine(string.Format(
+                    "Username: {0}\nFullName: {1}\nIsActive: {2}",
+                    user.Username,
+                    user.FullName,
+                    user.IsActive
+                ));
+            }
         }
     }
 }
