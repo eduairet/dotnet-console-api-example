@@ -3,17 +3,20 @@ using System.Data;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace HelloWorld.Data
 {
     public class DataContextDapper
     {
-        private readonly string _connectionString = string.Join("", new List<string>() {
-                "Server=localhost;",
-                "Database=DotNetCourseDatabase;",
-                "TrustServerCertificate=true;",
-                "Trusted_Connection=true;" // Windows Authentication
-        });
+        private readonly IConfiguration _config;
+        private readonly string? _connectionString;
+
+        public DataContextDapper(IConfiguration config)
+        {
+            _config = config;
+            _connectionString = _config.GetConnectionString("DefaultConnection");
+        }
 
         // <T> stands for generic type
         public IEnumerable<T> LoadData<T>(string sql)
@@ -43,19 +46,21 @@ namespace HelloWorld.Data
 
     public class DataContextEntity : DbContext
     {
+        private readonly IConfiguration _config;
+        private readonly string? _connectionString;
+
+        public DataContextEntity(IConfiguration config)
+        {
+            _config = config;
+            _connectionString = _config.GetConnectionString("DefaultConnection");
+        }
+
         /*
          * Entity Framework identify which tables match with our models
          * we just need to create a DbSet for each model,
          * we might need to make it nullable (just in case they exist)
          */
         public DbSet<User>? Users { get; set; }
-
-        private readonly string _connectionString = string.Join("", new List<string>() {
-                "Server=localhost;",
-                "Database=DotNetCourseDatabase;",
-                "TrustServerCertificate=true;",
-                "Trusted_Connection=true;" // Windows Authentication
-        });
 
         // This is where we create our model
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

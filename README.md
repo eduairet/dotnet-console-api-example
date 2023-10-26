@@ -39,3 +39,4 @@
 8. [Models](./notes/models.md)
 9. [Namespaces](./notes/namespaces.md)
 10. [MS SQL Database Connection](./notes/sql-connection.md)
+11. [Config](./notes/config.md)

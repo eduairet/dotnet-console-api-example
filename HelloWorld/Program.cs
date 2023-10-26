@@ -1,5 +1,6 @@
 ﻿using HelloWorld.Data;
 using HelloWorld.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace HelloWorld
 {
@@ -11,7 +12,11 @@ namespace HelloWorld
         }
         public static void Main(string[] args)
         {
-            DataContextDapper dataContextDapper = new();
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build(); // Loads appsettings.json and returns the configuration with .Build()
+
+            DataContextDapper dataContextDapper = new(config);
             string sqlCommand = "SELECT GETDATE()";
             DateTime rightNow = dataContextDapper.LoadDataSingle<DateTime>(sqlCommand);
             Console.WriteLine(rightNow); // Today's date
@@ -58,7 +63,7 @@ namespace HelloWorld
                 IsActive = true,
             };
 
-            DataContextEntity dataContextEntity = new();
+            DataContextEntity dataContextEntity = new(config);
             dataContextEntity.Add(newUser2);
             dataContextEntity.SaveChanges();
             List<User>? users = dataContextEntity.Users?.ToList<User>();
