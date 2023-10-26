@@ -1,8 +1,5 @@
-﻿using System.Data;
-using Dapper;
+﻿using HelloWorld.Data;
 using HelloWorld.Models;
-using Microsoft.Data.SqlClient;
-
 
 namespace HelloWorld
 {
@@ -14,17 +11,9 @@ namespace HelloWorld
         }
         public static void Main(string[] args)
         {
-            var connectionOptions = new List<string>()
-            {
-                "Server=localhost;",
-                "Database=DotNetCourseDatabase;",
-                "TrustServerCertificate=true;",
-                "Trusted_Connection=true;" // Windows Authentication
-            };
-            string connectionString = string.Join("", connectionOptions);
-            IDbConnection dbConnection = new SqlConnection(connectionString);
+            DataContext dataContext = new();
             string sqlCommand = "SELECT GETDATE()";
-            DateTime rightNow = dbConnection.QuerySingle<DateTime>(sqlCommand);
+            DateTime rightNow = dataContext.LoadDataSingle<DateTime>(sqlCommand);
             Console.WriteLine(rightNow); // Today's date
 
             User newUser = new()
@@ -41,7 +30,7 @@ namespace HelloWorld
                     "," + SingleQuotes(newUser.FullName) +
                     "," + SingleQuotes(newUser.IsActive.ToString()) +
                 ")";
-            int result = dbConnection.Execute(sql);
+            int result = dataContext.ExecuteSqlWithRowCount(sql);
             Console.WriteLine(result);
 
             string sqlQuerySelect = @"
@@ -49,7 +38,7 @@ namespace HelloWorld
                        _user.FullName,
                        _user.IsActive
                   FROM UserSchema._user";
-            IEnumerable<User> results = dbConnection.Query<User>(sqlQuerySelect);
+            IEnumerable<User> results = dataContext.LoadData<User>(sqlQuerySelect);
             foreach (User user in results)
             {
                 Console.WriteLine(string.Format(

@@ -96,16 +96,18 @@
     IDbConnection dbConnection = new SqlConnection(connectionString);
     ```
 -   Now you can start querying your database
-    ```CSHARP
-    string sqlCommand = "SELECT GETDATE()";
-    DateTime rightNow = dbConnection.QuerySingle<DateTime>(sqlCommand);
-    Console.WriteLine(rightNow); // Today's date
-    ```
 
 ## Dapper
 
 -   Allows to handle sql queries in a more easier way
-    -   Instead of querying with a native string:
+
+    -   Dapper `.QuerySingle<T>()` method
+        ```CSHARP
+        string sqlCommand = "SELECT GETDATE()";
+        DateTime rightNow = dbConnection.QuerySingle<DateTime>(sqlCommand);
+        Console.WriteLine(rightNow); // Today's date
+        ```
+    -   Dapper `.Query<T>()` method
         ```CSHARP
         string sqlQuerySelect = @"
             SELECT _user.Username,
@@ -114,4 +116,56 @@
                 FROM UserSchema._user";
         IEnumerable<User> results = dbConnection.Query<User>(sqlQuerySelect);
         ```
-    -   We can use Dapper and do it this way
+    -   It's a common pattern to create a Data file on our project and mount the sql connection and dapper methods there
+
+        ```CSHARP
+        using System.Data;
+        using Dapper;
+        using Microsoft.Data.SqlClient;
+
+        namespace HelloWorld.Data
+        {
+            public class DataContext
+            {
+                private string _connectionString = string.Join("", new List<string>() {
+                        "Server=localhost;",
+                        "Database=DotNetCourseDatabase;",
+                        "TrustServerCertificate=true;",
+                        "Trusted_Connection=true;" // Windows Authentication
+                });
+
+                // <T> stands for generic type
+                public IEnumerable<T> LoadData<T>(string sql)
+                {
+                    IDbConnection dbConnection = new SqlConnection(_connectionString);
+                    return dbConnection.Query<T>(sql);
+                }
+
+                public T LoadDataSingle<T>(string sql)
+                {
+                    IDbConnection dbConnection = new SqlConnection(_connectionString);
+                    return dbConnection.QuerySingle<T>(sql);
+                }
+
+                public bool ExecuteSql(string sql)
+                {
+                    IDbConnection dbConnection = new SqlConnection(_connectionString);
+                    return dbConnection.Execute(sql) > 0;
+                }
+
+                public int ExecuteSqlWithRowCount(string sql)
+                {
+                    IDbConnection dbConnection = new SqlConnection(_connectionString);
+                    return dbConnection.Execute(sql);
+                }
+            }
+        }
+        ```
+
+    -   This way we can fetch our data in an easier way
+        ```CSHARP
+        DataContext dataContext = new();
+        string sqlCommand = "SELECT GETDATE()";
+        DateTime rightNow = dataContext.LoadDataSingle<DateTime>(sqlCommand);
+        Console.WriteLine(rightNow);
+        ```
