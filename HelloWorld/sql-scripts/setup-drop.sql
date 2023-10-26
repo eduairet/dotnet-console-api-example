@@ -10,7 +10,7 @@ GO
 CREATE SCHEMA UserSchema
 GO
  
-CREATE TABLE UserSchema._user (
+CREATE TABLE UserSchema.Users (
     UserId INT IDENTITY(1,1) PRIMARY KEY,
     Username NVARCHAR(50),
     FullName NVARCHAR(255),
@@ -18,4 +18,4 @@ CREATE TABLE UserSchema._user (
     UserPassword NVARCHAR(50)
 );
 
-SELECT * FROM UserSchema._user;
+SELECT * FROM UserSchema.Users;

@@ -15,7 +15,7 @@
     CREATE SCHEMA UserSchema
     GO
 
-    CREATE TABLE UserSchema._user (
+    CREATE TABLE UserSchema.Users (
         UserId INT IDENTITY(1,1) PRIMARY KEY,
         Username NVARCHAR(50),
         FullName NVARCHAR(255),
@@ -23,7 +23,7 @@
         UserPassword NVARCHAR(50)
     );
 
-    SELECT * FROM UserSchema._user;
+    SELECT * FROM UserSchema.Users;
     ```
 
     -   You'll need to drop the table if the DB exists (be careful)
@@ -110,10 +110,10 @@
     -   Dapper `.Query<T>()` method
         ```CSHARP
         string sqlQuerySelect = @"
-            SELECT _user.Username,
-                    _user.FullName,
-                    _user.IsActive
-                FROM UserSchema._user";
+            SELECT Users.Username,
+                   Users.FullName,
+                   Users.IsActive
+              FROM UserSchema.Users";
         IEnumerable<User> results = dbConnection.Query<User>(sqlQuerySelect);
         ```
     -   It's a common pattern to create a Data file on our project and mount the sql connection and dapper methods there
@@ -125,7 +125,7 @@
 
         namespace HelloWorld.Data
         {
-            public class DataContext
+            public class DataContextDapper
             {
                 private string _connectionString = string.Join("", new List<string>() {
                         "Server=localhost;",
@@ -164,8 +164,79 @@
 
     -   This way we can fetch our data in an easier way
         ```CSHARP
-        DataContext dataContext = new();
+        DataContextDapper dataContext = new();
         string sqlCommand = "SELECT GETDATE()";
         DateTime rightNow = dataContext.LoadDataSingle<DateTime>(sqlCommand);
         Console.WriteLine(rightNow);
+        ```
+
+## Entity framework
+
+-   Entity framework is great for cases where we don't want to deal a lot with SQL because it allows us to work with the data without the need of knowing a lot of SQL
+
+    ```CSHARP
+    using HelloWorld.Models;
+    using Microsoft.EntityFrameworkCore;
+
+    public class DataContextEntity : DbContext
+    {
+        /*
+         * Entity Framework identify which tables match with our models
+         * we just need to create a DbSet for each model,
+         * we might need to make it nullable (just in case they exist)
+         */
+        public DbSet<User>? Users { get; set; }
+
+        private readonly string _connectionString = string.Join("", new List<string>() {
+                "Server=localhost;",
+                "Database=DotNetCourseDatabase;",
+                "TrustServerCertificate=true;",
+                "Trusted_Connection=true;" // Windows Authentication
+        });
+
+        // This is where we create our model
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(
+                    _connectionString,
+                    optionsBuilder => optionsBuilder.EnableRetryOnFailure()
+                );
+            }
+        }
+
+        // Here is where we map it
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasDefaultSchema("UserSchema"); // Just use when you need a specific schema
+            modelBuilder.Entity<User>().HasKey(u => u.UserId); // You can use this approach as well .ToTable("Users", "UserSchema");
+        }
+    }
+    ```
+
+    -   And with this set up we can use it
+
+        ```CSHARP
+        User newUser2 = new()
+        {
+            Username = "user2",
+            FullName = "User2 User2",
+            IsActive = true,
+        };
+
+        DataContextEntity dataContextEntity = new();
+        dataContextEntity.Add(newUser2); // Same effect as executing an SQL insert script
+        dataContextEntity.SaveChanges();
+        List<User>? users = dataContextEntity.Users?.ToList<User>();
+        if (users != null)
+        {
+            users?.ForEach(user => Console.WriteLine(string.Format(
+                    "UserId: {0}\nUsername: {1}\nFullName: {2}\nIsActive: {3}",
+                    user.UserId,
+                    user.Username,
+                    user.FullName,
+                    user.IsActive
+                )));
+        }
         ```
