@@ -34,7 +34,8 @@ namespace HelloWorld
             Console.WriteLine(result);
 
             string sqlQuerySelect = @"
-                SELECT Users.Username,
+                SELECT Users.UserId, 
+                       Users.Username,
                        Users.FullName,
                        Users.IsActive
                   FROM UserSchema.Users";
