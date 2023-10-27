@@ -1,4 +1,5 @@
-﻿using HelloWorld.Data;
+﻿using AutoMapper;
+using HelloWorld.Data;
 using HelloWorld.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -56,7 +57,6 @@ namespace HelloWorld
 
             string logContent = File.ReadAllText(logFilePath);
             Console.WriteLine(logContent);
-            */
 
             string jsonPath = "Data/json/";
 
@@ -89,6 +89,54 @@ namespace HelloWorld
 
             string rugbyUsersCopy = JsonConvert.SerializeObject(rugbyUsers, settings);
             File.WriteAllText(jsonPath + "rugby-players-copy.json", rugbyUsersCopy);
+            */
+
+            string jsonPath = "Data/json/";
+            string dummyUsersJson = File.ReadAllText(jsonPath + "dummy-users.json");
+
+            /*
+            Mapper mapper = new(new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<UserSnake, User>()
+                    .ForMember(
+                        dest => dest.IsActive,
+                        options => options.MapFrom(src => src.is_active)
+                    )
+                    .ForMember(
+                        dest => dest.FullName,
+                        options => options.MapFrom(src => src.full_name)
+                    )
+                    .ForMember(
+                        dest => dest.Username,
+                        options => options.MapFrom(src => src.username)
+                    );
+            }
+            ));
+
+            JsonSerializerSettings settings = new()
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            IEnumerable<UserSnake>? dummyUsersCopy = JsonConvert.DeserializeObject<IEnumerable<UserSnake>>(dummyUsersJson);
+            if (dummyUsersCopy != null)
+            {
+                IEnumerable<User>? dummyUsers = mapper.Map<IEnumerable<User>>(dummyUsersCopy);
+                foreach (User dummyUser in dummyUsers)
+                {
+                    Console.WriteLine(dummyUser.Username);
+                }
+            }
+            */
+
+            IEnumerable<User>? dummyUsers = JsonConvert.DeserializeObject<IEnumerable<User>>(dummyUsersJson);
+            if (dummyUsers != null)
+            {
+                foreach (User dummyUser in dummyUsers)
+                {
+                    Console.WriteLine(dummyUser.Username);
+                }
+            }
         }
     }
 }
