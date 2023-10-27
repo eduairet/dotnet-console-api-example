@@ -1,6 +1,8 @@
 ﻿using HelloWorld.Data;
 using HelloWorld.Models;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace HelloWorld
 {
@@ -8,7 +10,7 @@ namespace HelloWorld
     {
         private static string SingleQuotes(string raw)
         {
-            return "'" + raw + "'";
+            return "'" + raw.Replace("'", "''") + "'"; // Replacement handles single quotes in a Database
         }
         public static void Main(string[] args)
         {
@@ -18,6 +20,7 @@ namespace HelloWorld
 
             DataContextDapper dataContextDapper = new(config);
 
+            /*
             User newUser = new()
             {
                 Username = "user1",
@@ -25,7 +28,7 @@ namespace HelloWorld
                 IsActive = true,
             };
 
-            string sqlDir = "sql-scripts/";
+            string sqlDir = "Data/sql-scripts/";
 
             string sqlInsertUser = @"
                 INSERT INTO UserSchema.Users (
@@ -53,6 +56,39 @@ namespace HelloWorld
 
             string logContent = File.ReadAllText(logFilePath);
             Console.WriteLine(logContent);
+            */
+
+            string jsonPath = "Data/json/";
+
+            string rugbyPlayersJson = File.ReadAllText(jsonPath + "rugby-players.json");
+
+            IEnumerable<User>? rugbyUsers = JsonConvert.DeserializeObject<IEnumerable<User>>(
+                rugbyPlayersJson
+            );
+
+            if (rugbyUsers != null)
+            {
+                foreach (User rugbyUser in rugbyUsers)
+                {
+                    string sqlInsertUser = @"
+                        INSERT INTO UserSchema.Users (
+                            Username, FullName, IsActive
+                        ) VALUES (" + SingleQuotes(rugbyUser.Username) +
+                            "," + SingleQuotes(rugbyUser.FullName) +
+                            "," + SingleQuotes(rugbyUser.IsActive.ToString()) +
+                        ")";
+                    dataContextDapper.ExecuteSql(sqlInsertUser);
+                }
+            }
+
+            // Settings that'll help to convert to camelCase when serializing
+            JsonSerializerSettings settings = new()
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            string rugbyUsersCopy = JsonConvert.SerializeObject(rugbyUsers, settings);
+            File.WriteAllText(jsonPath + "rugby-players-copy.json", rugbyUsersCopy);
         }
     }
 }
