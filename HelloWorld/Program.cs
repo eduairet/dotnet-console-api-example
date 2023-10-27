@@ -17,9 +17,6 @@ namespace HelloWorld
                 .Build(); // Loads appsettings.json and returns the configuration with .Build()
 
             DataContextDapper dataContextDapper = new(config);
-            string sqlCommand = "SELECT GETDATE()";
-            DateTime rightNow = dataContextDapper.LoadDataSingle<DateTime>(sqlCommand);
-            Console.WriteLine(rightNow); // Today's date
 
             User newUser = new()
             {
@@ -28,15 +25,17 @@ namespace HelloWorld
                 IsActive = true,
             };
 
-            string sql = @"
+            string sqlDir = "sql-scripts/";
+
+            string sqlInsertUser = @"
                 INSERT INTO UserSchema.Users (
                     Username, FullName, IsActive
                 ) VALUES (" + SingleQuotes(newUser.Username) +
                     "," + SingleQuotes(newUser.FullName) +
                     "," + SingleQuotes(newUser.IsActive.ToString()) +
                 ")";
-            int result = dataContextDapper.ExecuteSqlWithRowCount(sql);
-            Console.WriteLine(result);
+
+            File.WriteAllText(sqlDir + "insert-user.sql", sqlInsertUser);
 
             string sqlQuerySelect = @"
                 SELECT Users.UserId, 
@@ -44,40 +43,16 @@ namespace HelloWorld
                        Users.FullName,
                        Users.IsActive
                   FROM UserSchema.Users";
-            IEnumerable<User> results = dataContextDapper.LoadData<User>(sqlQuerySelect);
-            foreach (User user in results)
-            {
-                Console.WriteLine(string.Format(
-                    "UserId: {0} Username: {1} FullName: {2} IsActive: {3}",
-                    user.UserId,
-                    user.Username,
-                    user.FullName,
-                    user.IsActive
-                ));
-            }
 
-            User newUser2 = new()
-            {
-                Username = "user2",
-                FullName = "User2 User2",
-                IsActive = true,
-            };
+            File.WriteAllText(sqlDir + "select-users.sql", sqlQuerySelect);
 
-            DataContextEntity dataContextEntity = new(config);
-            dataContextEntity.Add(newUser2);
-            dataContextEntity.SaveChanges();
-            List<User>? users = dataContextEntity.Users?.ToList<User>();
-            if (users != null)
-            {
-                users?.ForEach(user => Console.WriteLine(string.Format(
-                        "UserId: {0} Username: {1} FullName: {2} IsActive: {3}",
-                        user.UserId,
-                        user.Username,
-                        user.FullName,
-                        user.IsActive
-                    )));
-            }
+            string logFilePath = "log.txt";
+            using StreamWriter writer = new(logFilePath, append: true);
+            writer.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            writer.Close();
 
+            string logContent = File.ReadAllText(logFilePath);
+            Console.WriteLine(logContent);
         }
     }
 }

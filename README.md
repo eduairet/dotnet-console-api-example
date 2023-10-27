@@ -40,3 +40,4 @@
 9. [Namespaces](./notes/namespaces.md)
 10. [MS SQL Database Connection](./notes/sql-connection.md)
 11. [Config](./notes/config.md)
+12. [File Read and Write](./notes/files.md)
