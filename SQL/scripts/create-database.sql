@@ -1,33 +1,52 @@
-CREATE DATABASE TestDB001
+USE master
+GO
+
+-- Immediately disconnect and delete the database
+ALTER DATABASE TestDB001
+SET SINGLE_USER
+WITH ROLLBACK IMMEDIATE;
+
+DROP DATABASE TestDB001
+GO
+
+-- Check if the database exists; if not, create it
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'TestDB001')
+BEGIN
+    CREATE DATABASE TestDB001
+END
 GO
 
 USE TestDB001
 GO
 
-CREATE SCHEMA TestSchema
+-- Check if the schema exists; if not, create it
+IF NOT EXISTS (SELECT * FROM information_schema.schemata WHERE schema_name = 'TestSchema')
+BEGIN
+    EXEC('CREATE SCHEMA TestSchema')
+END
 GO
 
-CREATE TABLE TestSchema.TestTable
-(
-    -- ID INT IDENTITY(StartPoint,IncrementBy) NOT NULL,
-	ID INT IDENTITY(1,1) NOT NULL,
-    -- No string type, instead it has:
-        -- CHAR(numOfCharacters) - Fixed-length. It stores a specified number of characters, padding with spaces if necessary.
-        -- VARCHAR(maxNumOfCharacters) - Stores a variable number of characters, only using as much storage as needed.
-        -- NVARCHAR(maxNumOfCharacters) - Same as VARCHAR but it supports Unicode characters.
-	Name NVARCHAR(100) NOT NULL,
-    Subscribed BIT NOT NULL, -- Boolean 0 or 1 instead true or false
-    CreatedDate DATETIME NOT NULL, -- Datetime object
-    Balance DECIMAL(10,2) NOT NULL, -- Decimal object
-    AGE INT NOT NULL, -- Integer object
-    CONSTRAINT PK_TestTable PRIMARY KEY (ID) -- Forces the DB to create an ID for each entry
-)
+-- Check if the table exists; if not, create it
+IF NOT EXISTS (SELECT * FROM information_schema.tables WHERE table_schema = 'TestSchema' AND table_name = 'TestTable')
+BEGIN
+    CREATE TABLE TestSchema.TestTable
+    (
+        ID INT IDENTITY(1,1) NOT NULL,
+        Name NVARCHAR(100) NOT NULL,
+        Subscribed BIT NULL,
+        CreatedDate DATETIME NOT NULL,
+        UpdatedDate DATETIME2 NOT NULL,
+        Balance DECIMAL(10,2) NOT NULL,
+        AGE INT NOT NULL,
+        CONSTRAINT PK_TestTable PRIMARY KEY (ID)
+    )
+END
 GO
 
-SELECT * FROM TestSchema.TestTable -- Selects all elements in the table
+-- Now, you can run your SELECT statements
+SELECT * FROM TestSchema.TestTable
+ORDER BY ID DESC
 GO
 
-SELECT * FROM TestSchema.TestTable WHERE ID = 1 -- Selects the element with ID = 1
+SELECT * FROM TestSchema.TestTable WHERE ID = 1
 GO
-
--- DROP TABLE TestSchema.TestTable -- Command to delete the table
