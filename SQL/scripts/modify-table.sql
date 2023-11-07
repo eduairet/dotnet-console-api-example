@@ -15,6 +15,10 @@ SET Subscribed = 1, UpdatedDate = GETDATE() -- Updates the Subscribed and Update
 WHERE Name = 'John Doe'
 GO
 
+INSERT INTO TestSchema.AnotherTable (TestTableID, Description, SomeValue)
+SELECT ID, 'Description for ' + CAST(ID AS NVARCHAR(10)), AGE
+FROM TestSchema.TestTable;
+
 SELECT Name,
        ISNULL(Subscribed, 0) as Subscribed, --Returns 0 if subscribed is null
        CreatedDate,

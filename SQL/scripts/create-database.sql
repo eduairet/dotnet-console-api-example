@@ -43,6 +43,21 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS (SELECT * FROM information_schema.tables WHERE table_schema = 'TestSchema' AND table_name = 'AnotherTable')
+BEGIN
+    CREATE TABLE TestSchema.AnotherTable
+    (
+        ID INT IDENTITY(1,1) NOT NULL,
+        TestTableID INT NOT NULL, -- This column is used to establish the join with TestTable
+        Description NVARCHAR(255) NULL,
+        SomeValue INT NULL,
+        CONSTRAINT PK_AnotherTable PRIMARY KEY (ID),
+        CONSTRAINT FK_AnotherTable_TestTable FOREIGN KEY (TestTableID) REFERENCES TestSchema.TestTable(ID)
+    )
+END
+GO
+
+
 -- Now, you can run your SELECT statements
 SELECT * FROM TestSchema.TestTable
 ORDER BY ID DESC
