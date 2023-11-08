@@ -121,3 +121,25 @@ dotnet new webapi --name DotnetAPI
             public string? Summary { get; set; }
         }
         ```
+
+## Running the App
+
+```SHELL
+dotnet run
+```
+
+-   The previous command will start our server
+
+    ```SHELL
+    Building...
+    info: Microsoft.Hosting.Lifetime[14]
+        Now listening on: http://localhost:5202
+    info: Microsoft.Hosting.Lifetime[0]
+        Application started. Press Ctrl+C to shut down.
+    info: Microsoft.Hosting.Lifetime[0]
+        Hosting environment: Development
+    info: Microsoft.Hosting.Lifetime[0]
+        Content root path: C:\Users\User\DotnetAPI
+    ```
+- Now we can use the API
+    - The swagger UI is in the same URL than the server, we just need to add the swagger UI home route `http://localhost:5202/swagger/index.html`
