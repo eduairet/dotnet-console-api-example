@@ -173,6 +173,8 @@ dotnet new webapi --name DotnetAPI
 
 ```SHELL
 dotnet run
+# With hot reload
+dotnet watch run
 ```
 
 -   The previous command will start our server
