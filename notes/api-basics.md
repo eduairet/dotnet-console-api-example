@@ -193,3 +193,91 @@ dotnet watch run
 
 -   Now we can use the API
     -   The swagger UI is in the same URL than the server, we just need to add the swagger UI home route `http://localhost:5202/swagger/index.html`
+
+## Settings
+
+-   `DotnetAPI\Properties\launchSettings.json` - Is useful to set our dev port
+    ```JSON
+    {
+      "$schema": "http://json.schemastore.org/launchsettings.json",
+      "iisSettings": {
+        "windowsAuthentication": false,
+        "anonymousAuthentication": true,
+        "iisExpress": {
+          "applicationUrl": "http://localhost:59036",
+          "sslPort": 44360
+        }
+      },
+      "profiles": {
+        "http": {
+          "commandName": "Project",
+          "dotnetRunMessages": true,
+          "launchBrowser": true,
+          "launchUrl": "swagger",
+          "applicationUrl": "http://localhost:5000",
+          "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+          }
+        },
+        "https": {
+          "commandName": "Project",
+          "dotnetRunMessages": true,
+          "launchBrowser": true,
+          "launchUrl": "swagger",
+          "applicationUrl": "https://localhost:5001;http://localhost:5000",
+          "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+          }
+        },
+        "IIS Express": {
+          "commandName": "IISExpress",
+          "launchBrowser": true,
+          "launchUrl": "swagger",
+          "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+          }
+        }
+      }
+    }
+    ```
+-   ``CORS` - This is to avoid network errors (different for production)
+
+    ```CSHARP
+    // ...
+
+    // Cross Origin Policy
+    builder.Services.AddCors(options =>
+    {
+        // Dev
+        options.AddPolicy("DevCorsPolicy", policy =>
+        {
+            // Specify the allowed origins (usually frontend)
+            policy.WithOrigins("http://localhost:3000")
+                .AllowAnyMethod() // Allow any HTTP method: POST, PUT...
+                .AllowAnyHeader() // Allow any HTTP header
+                .AllowCredentials(); // Adjust as per your requirements
+        });
+        // Production
+        options.AddPolicy("ProdCorsPolicy", policy =>
+        {
+            // Specify the allowed prod origins (deployed app domains)
+            policy.WithOrigins("https://www.example.com")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+    });
+
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseCors("DevCorsPolicy");
+        // ...
+    }
+    else
+    {
+        app.UseCors("ProdCorsPolicy");
+    }
+    // ...
+    ```
