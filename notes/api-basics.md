@@ -281,3 +281,35 @@ dotnet watch run
     }
     // ...
     ```
+
+## Database connection
+
+-   Set `appsettings.json` first
+    ```JSON
+    {
+        "ConnectionStrings": {
+            "DefaultConnection": "Server=localhost;Database=DotNetCourseDatabase;TrustServerCertificate=true;Trusted_Connection=true;"
+        },
+        "Logging": {
+            "LogLevel": {
+                "Default": "Information",
+                "Microsoft.AspNetCore": "Warning"
+            }
+        },
+        "AllowedHosts": "*",
+        "Kestrel": {
+            "Endpoints": {
+                "Https": {
+                    "Url": "https://localhost:5001"
+                }
+            }
+        }
+    }
+    ```
+-   Once the connection string is set it can be accessible all over the app
+    ```CSHARP
+    public UserController(IConfiguration config)
+    {
+        Console.WriteLine(config.GetConnectionString("DefaultConnection"));
+    }
+    ```

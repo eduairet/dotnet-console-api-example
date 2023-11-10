@@ -8,10 +8,15 @@ namespace DotnetAPI.Controllers;
 // It takes the string before Controller in the name of the class
 public class UserController : ControllerBase
 {
+    public UserController(IConfiguration config)
+    {
+        Console.WriteLine(config.GetConnectionString("DefaultConnection"));
+    }
+
     [HttpGet("users")] // Route path inside the parenthesis
     public string[] GetUsers()
     {
-        return new string[] {"user1", "user2"};
+        return new string[] { "user1", "user2" };
     }
 
     [HttpGet("user/{userId}")] // Parameters can be added this way
