@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace DotnetAPI.Models;
 
 public class User

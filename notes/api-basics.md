@@ -313,3 +313,38 @@ dotnet watch run
         Console.WriteLine(config.GetConnectionString("DefaultConnection"));
     }
     ```
+-   Install the helper packages to stablish the connection
+
+    ```SHELL
+    dotnet add package Microsoft.Data.SqlClient
+    dotnet add package Dapper
+    dotnet add package AutoMapper
+    ```
+
+-   Configure the [data context](../DotnetAPI/Data/DataContext.cs) with Dapper or Entity Framework
+-   And test it in your API
+
+    ```CSHARP
+    using Microsoft.AspNetCore.Mvc;
+    using DotnetAPI.Data;
+    using DotnetAPI.Models;
+
+    namespace DotnetAPI.Controllers;
+
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController : ControllerBase
+    {
+        private readonly DataContext _data;
+        public UserController(IConfiguration config)
+        {
+            _data = new DataContext(config); // Inject the config to the data context to get the connection string
+        }
+
+        [HttpGet("test-connection")]
+        public DateTime TestConnection()
+        {
+            return _data.LoadDataSingle<DateTime>("SELECT GETDATE()"); // Test the connection with a simple query that returns a single value (DateTime)
+        }
+    }
+    ```
