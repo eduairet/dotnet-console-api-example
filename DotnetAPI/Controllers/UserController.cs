@@ -8,13 +8,9 @@ namespace DotnetAPI.Controllers;
 [Route("[controller]")]
 // Standardized way to add a route based on the name of the controller
 // It takes the string before Controller in the name of the class
-public class UserController : ControllerBase
+public class UserController(IConfiguration config) : ControllerBase
 {
-    private readonly DataContext _data;
-    public UserController(IConfiguration config)
-    {
-        _data = new DataContext(config);
-    }
+    private readonly DataContext _data = new(config);
 
     [HttpGet("test-connection")]
     public DateTime TestConnection()
@@ -25,13 +21,10 @@ public class UserController : ControllerBase
     [HttpGet("users")] // Route path inside the parenthesis
     public User[] GetUsers()
     {
-        User user1 = new () {
-            Name = "user1"
+        return new User[] {
+            new() { FirstName = "John", LastName = "Doe" },
+            new() { FirstName = "Alice", LastName = "Smith" }
         };
-        User user2 = new () {
-            Name = "user2"
-        };
-        return new User[] { user1, user2 };
     }
 
     [HttpGet("user/{userId}")] // Parameters can be added this way
