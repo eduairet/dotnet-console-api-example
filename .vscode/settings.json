@@ -1,4 +1,3 @@
 {
-    "dotnet.defaultSolution": "HelloWorld/HelloWorld.sln",
-    "cSpell.words": ["entityframework"]
+    "dotnet.defaultSolution": "DotnetAPI/DotnetAPI.sln"
 }

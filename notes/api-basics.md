@@ -348,3 +348,5 @@ dotnet watch run
         }
     }
     ```
+- Creating models for our database entities
+    - It's a good practice to create our models as `public class partial` in case we need to extend them later

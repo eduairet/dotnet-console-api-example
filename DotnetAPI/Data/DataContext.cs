@@ -13,7 +13,6 @@ public class DataContext
     {
         _config = config;
         _connectionString = _config.GetConnectionString("DefaultConnection");
-        Console.WriteLine(_connectionString);
     }
     public IEnumerable<T> LoadData<T>(string sql)
     {
