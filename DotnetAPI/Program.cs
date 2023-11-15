@@ -28,6 +28,8 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+// Lowercase routes
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 var app = builder.Build();
 
