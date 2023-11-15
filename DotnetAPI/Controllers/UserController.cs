@@ -32,4 +32,18 @@ public class UserController(IConfiguration config) : ControllerBase
     {
         return "user" + userId;
     }
+
+    [HttpPost("populate-db")]
+    public ActionResult<string> PopulateDB()
+    {
+        try
+        {
+            _data.PopulateAll();
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+        return "Populated DB";
+    }
 }
