@@ -348,5 +348,47 @@ dotnet watch run
         }
     }
     ```
-- Creating models for our database entities
-    - It's a good practice to create our models as `public class partial` in case we need to extend them later
+
+-   Creating models for our database entities
+
+    -   It's a good practice to create our models as `public class partial` in case we need to extend them later
+
+        ```CSHARP
+        // .NET 8.0 Approach with first class constructor
+        using System.ComponentModel.DataAnnotations;
+        using System.ComponentModel.DataAnnotations.Schema;
+
+        namespace DotnetAPI.Models;
+
+        public partial class User
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int UserId { get; set; }
+            public string FirstName { get; set; } = ""; // Avoids null warnings
+            public string LastName { get; set; } = "";
+            public string Name { get { return FirstName + " " + LastName; } }
+            public string Email { get; set; } = "";
+            public string Gender { get; set; } = "";
+            public bool Active { get; set; } = false;
+        };
+        ```
+
+-   Connecting the endpoints with our DB and our Models
+
+    ```CSHARP
+    [HttpGet()] // Route path inside the parenthesis
+    public IEnumerable<User> GetUsers()
+    {
+        string sql = @"
+            SELECT TOP (10) UserId
+                ,FirstName
+                ,LastName
+                ,Email
+                ,Gender
+                ,Active
+            FROM TutorialAppSchema.Users";
+        IEnumerable<User> users = _data.LoadData<User>(sql);
+        return users;
+    }
+    ```
