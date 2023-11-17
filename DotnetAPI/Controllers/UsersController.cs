@@ -49,6 +49,49 @@ public class UsersController(IConfiguration config) : ControllerBase
         return user;
     }
 
+    [HttpPost("add-user")]
+    public IActionResult AddUser(CreateUser user)
+    {
+        string sql = @"
+            INSERT INTO TutorialAppSchema.Users
+                    (FirstName
+                    ,LastName
+                    ,Email
+                    ,Gender
+                    ,Active)
+                VALUES
+                    ('" + user.FirstName + "'" +
+                    ",'" + user.LastName + "'" +
+                    ",'" + user.Email + "'" +
+                    ",'" + user.Gender + "'" +
+                    ",'" + user.Active + "')";
+
+        if (_data.ExecuteSql(sql))
+        {
+            return Ok();
+        }
+        return BadRequest();
+    }
+
+    [HttpPut("edit-user")]
+    public IActionResult EditUser(User user)
+    {
+        string sql = @"
+            UPDATE TutorialAppSchema.Users
+            SET FirstName = '" + user.FirstName +
+                "',LastName = '" + user.LastName +
+                "',Email = '" + user.Email +
+                "',Gender = '" + user.Gender +
+                "',Active = " + (user.Active ? 1 : 0) +
+            " WHERE UserId = " + user.UserId.ToString();
+
+        if (_data.ExecuteSql(sql))
+        {
+            return Ok();
+        }
+        return BadRequest();
+    }
+
     [HttpPost("populate-db")]
     public ActionResult<string> PopulateDB()
     {
