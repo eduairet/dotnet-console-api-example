@@ -392,3 +392,22 @@ dotnet watch run
         return users;
     }
     ```
+
+## DTOs
+
+-   They are like models but they are used to transfer data between the client and the server
+-   They are useful to hide sensitive data from the client like passwords or to avoid sending unnecessary data to the client
+
+```CSHARP
+namespace DotnetAPI.Dtos;
+
+public partial class UserDto
+{
+    // Almost the same as user but without ID
+    public string FirstName { get; set; } = "";
+    public string LastName { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string Gender { get; set; } = "";
+    public bool Active { get; set; }
+}
+```
