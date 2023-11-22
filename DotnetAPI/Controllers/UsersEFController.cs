@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using DotnetAPI.Data;
 using DotnetAPI.Models;
@@ -10,6 +11,10 @@ namespace DotnetAPI.Controllers;
 public class UsersEFController(IConfiguration config) : ControllerBase
 {
     private readonly DataContextEF _data = new(config);
+    private readonly IMapper _mapper = new MapperConfiguration(cfg =>
+    {
+        cfg.CreateMap<UserAddDto, User>();
+    }).CreateMapper();
 
     [HttpGet()]
     public IEnumerable<User> GetUsers()
@@ -36,14 +41,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
     [HttpPost("add-user")]
     public IActionResult AddUser(UserAddDto user)
     {
-        User userDb = new()
-        {
-            Active = user.Active,
-            Gender = user.Gender,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName
-        };
+        User userDb = _mapper.Map<User>(user);
         _data.Add(userDb);
         if (_data.SaveChanges() > 0) return Ok();
         else throw new Exception("Could not add user"); ;
