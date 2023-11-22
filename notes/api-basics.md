@@ -422,5 +422,12 @@ dotnet watch run
     using DotnetAPI.Models;
     using DotnetAPI.Dtos;
     // The bigger the App the more specific the namespaces should be
-    // 
+    //
     ```
+
+## Entity Framework
+
+-   It's an ORM (Object Relational Mapper) that allows us to work with our database as if it were an object
+-   It is useful to avoid writing SQL queries but at the same time it's not as flexible as Dapper
+-   It might slow down the app since it's a heavy library and it can be a pain to configure and maintain
+-   It's useful for small projects or when we don't need to write complex queries
