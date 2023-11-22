@@ -93,6 +93,20 @@ public class UsersController(IConfiguration config) : ControllerBase
         return BadRequest();
     }
 
+    [HttpDelete("delete-user/{userId}")]
+    public IActionResult DeleteUser(int userId)
+    {
+        string sql = @"
+            DELETE FROM TutorialAppSchema.Users
+            WHERE UserId = " + userId.ToString();
+
+        if (_data.ExecuteSql(sql))
+        {
+            return Ok();
+        }
+        return BadRequest();
+    }
+
     [HttpPost("populate-db")]
     public ActionResult<string> PopulateDB()
     {

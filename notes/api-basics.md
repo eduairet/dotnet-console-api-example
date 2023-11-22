@@ -398,16 +398,29 @@ dotnet watch run
 -   They are like models but they are used to transfer data between the client and the server
 -   They are useful to hide sensitive data from the client like passwords or to avoid sending unnecessary data to the client
 
-```CSHARP
-namespace DotnetAPI.Dtos;
+    ```CSHARP
+    namespace DotnetAPI.Dtos;
 
-public partial class UserDto
-{
-    // Almost the same as user but without ID
-    public string FirstName { get; set; } = "";
-    public string LastName { get; set; } = "";
-    public string Email { get; set; } = "";
-    public string Gender { get; set; } = "";
-    public bool Active { get; set; }
-}
-```
+    public partial class UserDto
+    {
+        // Almost the same as user but without ID
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Gender { get; set; } = "";
+        public bool Active { get; set; }
+    }
+    ```
+
+## Namespaces
+
+-   They are useful to organize our code and avoid name collisions
+-   They help to optimize the use of memory since they are loaded on demand
+
+    ```CSHARP
+    using DotnetAPI.Data;
+    using DotnetAPI.Models;
+    using DotnetAPI.Dtos;
+    // The bigger the App the more specific the namespaces should be
+    // 
+    ```
