@@ -54,7 +54,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
             userDb.FirstName = user.FirstName;
             userDb.LastName = user.LastName;
             if (_data.SaveChanges() > 0) return Ok();
-            else throw new Exception(errMessage);
+            else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);
     }
@@ -68,7 +68,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
         {
             _data.Users.Remove(userDb);
             if (_data.SaveChanges() > 0) return Ok();
-            else throw new Exception(errMessage);
+            else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);
     }

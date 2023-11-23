@@ -1,8 +1,6 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using DotnetAPI.Data;
 using DotnetAPI.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace DotnetAPI.Controllers;
 
@@ -12,11 +10,6 @@ namespace DotnetAPI.Controllers;
 public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
 {
     private readonly DataContextEF _data = new(config);
-
-    private readonly IMapper _mapper = new MapperConfiguration(cfg =>
-    {
-        cfg.CreateMap<UserJobInfo, UserJobInfo>();
-    }).CreateMapper();
 
     [HttpGet()]
     public IEnumerable<UserJobInfo> GetUsersJobInfo()
@@ -39,8 +32,7 @@ public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
     {
         if (_data.UserJobInfo.Any(u => u.UserId == userJobInfo.UserId))
             return BadRequest("User with the same ID already exists");
-        var userJobInfoDb = _mapper.Map<UserJobInfo>(userJobInfo);
-        _data.Add(userJobInfoDb);
+        _data.Add(userJobInfo);
         if (_data.SaveChanges() > 0) return Ok();
         throw new Exception("Could not add user job info");
     }
@@ -55,7 +47,7 @@ public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
             userJobInfoDb.JobTitle = userJobInfo.JobTitle;
             userJobInfoDb.Department = userJobInfo.Department;
             if (_data.SaveChanges() > 0) return Ok();
-            else throw new Exception(errMessage);
+            else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);
     }
@@ -69,7 +61,7 @@ public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
         {
             _data.UserJobInfo.Remove(userJobInfoDb);
             if (_data.SaveChanges() > 0) return Ok();
-            else throw new Exception(errMessage);
+            else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);
     }

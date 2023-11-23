@@ -68,7 +68,7 @@ public class UsersController(IConfiguration config) : ControllerBase
                     ",'" + user.Active + "')";
 
         if (_data.ExecuteSql(sql)) return Ok();
-        else throw new Exception("Could not add user");
+        throw new Exception("Could not add user");
     }
 
     [HttpPut("edit-user")]
@@ -84,7 +84,7 @@ public class UsersController(IConfiguration config) : ControllerBase
             " WHERE UserId = " + user.UserId.ToString();
 
         if (_data.ExecuteSql(sql)) return Ok();
-        else throw new Exception("Could not edit user");
+        throw new Exception("Could not edit user");
     }
 
     [HttpDelete("delete-user/{userId}")]
@@ -93,9 +93,8 @@ public class UsersController(IConfiguration config) : ControllerBase
         string sql = @"
             DELETE FROM TutorialAppSchema.Users
             WHERE UserId = " + userId.ToString();
-
         if (_data.ExecuteSql(sql)) return Ok();
-        else throw new Exception("Could not delete user");
+        throw new Exception("Could not delete user");
     }
 
     [HttpPost("populate-db")]

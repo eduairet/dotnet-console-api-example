@@ -52,7 +52,7 @@ public class UsersJobInfoController(IConfiguration config) : ControllerBase
                 VALUES
                 (" + userJobInfo.UserId.ToString() + ",'" + userJobInfo.JobTitle + "','" + userJobInfo.Department + "')";
             if (_data.ExecuteSql(sql)) return Ok();
-            else throw new Exception("Could not add user job info");
+            throw new Exception("Could not add user job info");
         }
     }
 
@@ -65,7 +65,7 @@ public class UsersJobInfoController(IConfiguration config) : ControllerBase
             ,Department = '" + userJobInfo.Department + @"'
             WHERE UserId = " + userJobInfo.UserId.ToString();
         if (_data.ExecuteSql(sql)) return Ok();
-        else throw new Exception("Could not edit user job info");
+        throw new Exception("Could not edit user job info");
     }
 
     [HttpDelete("delete-user-job-info/{userId}")]
@@ -75,6 +75,6 @@ public class UsersJobInfoController(IConfiguration config) : ControllerBase
             DELETE FROM TutorialAppSchema.UserJobInfo
             WHERE UserId = " + userId.ToString();
         if (_data.ExecuteSql(sql)) return Ok();
-        else throw new Exception("Could not delete user job info");
+        throw new Exception("Could not delete user job info");
     }
 }
