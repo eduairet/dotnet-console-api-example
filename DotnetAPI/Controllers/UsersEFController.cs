@@ -20,10 +20,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
     public IEnumerable<User> GetUsers()
     {
         IEnumerable<User> users = _data.Users;
-        if (users != null)
-        {
-            return users;
-        }
+        if (users != null) return users;
         throw new Exception("Users not found");
     }
 
@@ -31,20 +28,17 @@ public class UsersEFController(IConfiguration config) : ControllerBase
     public User GetUser(int userId)
     {
         User? user = _data.Users.Where(u => u.UserId == userId).FirstOrDefault();
-        if (user != null)
-        {
-            return user;
-        }
+        if (user != null) return user;
         throw new Exception("User not found");
     }
 
     [HttpPost("add-user")]
     public IActionResult AddUser(UserAddDto user)
     {
-        User userDb = _mapper.Map<User>(user);
+        var userDb = _mapper.Map<User>(user);
         _data.Add(userDb);
         if (_data.SaveChanges() > 0) return Ok();
-        else throw new Exception("Could not add user"); ;
+        throw new Exception("Could not add user"); ;
     }
 
     [HttpPut("edit-user")]
