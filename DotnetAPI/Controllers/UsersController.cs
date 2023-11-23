@@ -50,7 +50,7 @@ public class UsersController(IConfiguration config) : ControllerBase
         return user;
     }
 
-    [HttpPost("add-user")]
+    [HttpPost()]
     public IActionResult AddUser(UserAddDto user)
     {
         string sql = @"
@@ -71,7 +71,7 @@ public class UsersController(IConfiguration config) : ControllerBase
         throw new Exception("Could not add user");
     }
 
-    [HttpPut("edit-user")]
+    [HttpPut()]
     public IActionResult EditUser(User user)
     {
         string sql = @"
@@ -87,7 +87,7 @@ public class UsersController(IConfiguration config) : ControllerBase
         throw new Exception("Could not edit user");
     }
 
-    [HttpDelete("delete-user/{userId}")]
+    [HttpDelete("{userId}")]
     public IActionResult DeleteUser(int userId)
     {
         string sql = @"

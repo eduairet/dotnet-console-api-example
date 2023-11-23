@@ -32,7 +32,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
         throw new Exception("User not found");
     }
 
-    [HttpPost("add-user")]
+    [HttpPost()]
     public IActionResult AddUser(UserAddDto user)
     {
         var userDb = _mapper.Map<User>(user);
@@ -41,7 +41,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
         throw new Exception("Could not add user"); ;
     }
 
-    [HttpPut("edit-user")]
+    [HttpPut()]
     public IActionResult EditUser(User user)
     {
         string errMessage = "Could not edit user";
@@ -59,7 +59,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
         throw new Exception(errMessage);
     }
 
-    [HttpDelete("delete-user/{userId}")]
+    [HttpDelete("{userId}")]
     public IActionResult DeleteUser(int userId)
     {
         string errMessage = "Could not delete user";

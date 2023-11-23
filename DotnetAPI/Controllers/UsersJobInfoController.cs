@@ -31,7 +31,7 @@ public class UsersJobInfoController(IConfiguration config) : ControllerBase
         return userJobInfo;
     }
 
-    [HttpPost("add-user-job-info")]
+    [HttpPost()]
     public IActionResult AddUserJobInfo(UserJobInfo userJobInfo)
     {
         string checkSql = @"
@@ -56,7 +56,7 @@ public class UsersJobInfoController(IConfiguration config) : ControllerBase
         }
     }
 
-    [HttpPut("edit-user-job-info")]
+    [HttpPut()]
     public IActionResult EditUserJobInfo(UserJobInfo userJobInfo)
     {
         string sql = @"
@@ -68,7 +68,7 @@ public class UsersJobInfoController(IConfiguration config) : ControllerBase
         throw new Exception("Could not edit user job info");
     }
 
-    [HttpDelete("delete-user-job-info/{userId}")]
+    [HttpDelete("{userId}")]
     public IActionResult DeleteUserJobInfo(int userId)
     {
         string sql = @"

@@ -31,7 +31,7 @@ public class UsersSalaryController(IConfiguration config) : ControllerBase
         return userSalary;
     }
 
-    [HttpPost("add-user-salary")]
+    [HttpPost()]
     public IActionResult AddUserSalary(UserSalary userSalary)
     {
         string checkSql = @"
@@ -56,7 +56,7 @@ public class UsersSalaryController(IConfiguration config) : ControllerBase
         }
     }
 
-    [HttpPut("edit-user-salary")]
+    [HttpPut()]
     public IActionResult EditUserSalary(UserSalary userSalary)
     {
         string sql = @"
@@ -67,7 +67,7 @@ public class UsersSalaryController(IConfiguration config) : ControllerBase
         throw new Exception("Could not edit user salary");
     }
 
-    [HttpDelete("delete-user-salary/{userId}")]
+    [HttpDelete("{userId}")]
     public IActionResult DeleteUserSalary(int userId)
     {
         string sql = @"

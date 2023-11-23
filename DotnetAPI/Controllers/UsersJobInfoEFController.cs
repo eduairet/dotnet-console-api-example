@@ -27,7 +27,7 @@ public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
         throw new Exception("User job info not found");
     }
 
-    [HttpPost("add-user-job-info")]
+    [HttpPost()]
     public IActionResult AddUserJobInfo(UserJobInfo userJobInfo)
     {
         if (_data.UserJobInfo.Any(u => u.UserId == userJobInfo.UserId))
@@ -37,7 +37,7 @@ public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
         throw new Exception("Could not add user job info");
     }
 
-    [HttpPut("edit-user-job-info")]
+    [HttpPut()]
     public IActionResult EditUserJobInfo(UserJobInfo userJobInfo)
     {
         string errMessage = "Could not edit user job info";
@@ -52,7 +52,7 @@ public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
         throw new Exception(errMessage);
     }
 
-    [HttpDelete("delete-user-job-info/{userId}")]
+    [HttpDelete("{userId}")]
     public IActionResult DeleteUserJobInfo(int userId)
     {
         string errMessage = "Could not delete user job info";

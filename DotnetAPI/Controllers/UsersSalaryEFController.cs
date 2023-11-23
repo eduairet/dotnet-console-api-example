@@ -26,7 +26,7 @@ public class UsersSalaryEFController(IConfiguration config) : ControllerBase
         throw new Exception("User salary not found");
     }
 
-    [HttpPost("add-user-salary")]
+    [HttpPost()]
     public IActionResult AddUserSalary(UserSalary userSalary)
     {
         if (_data.UserSalary.Any(u => u.UserId == userSalary.UserId))
@@ -36,7 +36,7 @@ public class UsersSalaryEFController(IConfiguration config) : ControllerBase
         throw new Exception("Could not add user salary");
     }
 
-    [HttpPut("edit-user-salary")]
+    [HttpPut()]
     public IActionResult EditUserSalary(UserSalary userSalary)
     {
         string errMessage = "Could not edit user salary";
@@ -50,7 +50,7 @@ public class UsersSalaryEFController(IConfiguration config) : ControllerBase
         throw new Exception(errMessage);
     }
 
-    [HttpDelete("delete-user-salary/{userId}")]
+    [HttpDelete("{userId}")]
     public IActionResult DeleteUserSalary(int userId)
     {
         string errMessage = "Could not delete user salary";
