@@ -476,3 +476,50 @@ dotnet watch run
         }
     }
     ```
+
+-   Using EF and AutoMapper
+
+    ```CSHARP
+    using AutoMapper;
+    using Microsoft.AspNetCore.Mvc;
+    using DotnetAPI.Data;
+    using DotnetAPI.Models;
+    using DotnetAPI.Dtos;
+
+    namespace DotnetAPI.Controllers;
+
+    [ApiController]
+    [Route("[controller]")]
+    public class UsersEFController(IConfiguration config) : ControllerBase
+    {
+        private readonly DataContextEF _data = new(config);
+        private readonly IMapper _mapper = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<UserAddDto, User>();
+            cfg.CreateMap<User, User>();
+        }).CreateMapper();
+
+        [HttpPost()]
+        public IActionResult AddUser(UserAddDto user)
+        {
+            var userDb = _mapper.Map<User>(user); // Map the DTO to the model
+            _data.Add(userDb);
+            if (_data.SaveChanges() > 0) return Ok();
+            throw new Exception("Could not add user"); ;
+        }
+
+        [HttpPut()]
+        public IActionResult EditUser(User user)
+        {
+            string errMessage = "Could not edit user";
+            User? userDb = _data.Users.Where(u => u.UserId == user.UserId).FirstOrDefault();
+            if (userDb != null)
+            {
+                _mapper.Map(user, userDb); // Map the new user data to the one in the database
+                if (_data.SaveChanges() > 0) return Ok();
+                else return BadRequest(errMessage);
+            }
+            throw new Exception(errMessage);
+        }
+    }
+    ```

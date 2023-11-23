@@ -14,6 +14,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
     private readonly IMapper _mapper = new MapperConfiguration(cfg =>
     {
         cfg.CreateMap<UserAddDto, User>();
+        cfg.CreateMap<User, User>();
     }).CreateMapper();
 
     [HttpGet()]
@@ -48,11 +49,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
         User? userDb = _data.Users.Where(u => u.UserId == user.UserId).FirstOrDefault();
         if (userDb != null)
         {
-            userDb.Active = user.Active;
-            userDb.Gender = user.Gender;
-            userDb.Email = user.Email;
-            userDb.FirstName = user.FirstName;
-            userDb.LastName = user.LastName;
+            _mapper.Map(user, userDb);
             if (_data.SaveChanges() > 0) return Ok();
             else return BadRequest(errMessage);
         }

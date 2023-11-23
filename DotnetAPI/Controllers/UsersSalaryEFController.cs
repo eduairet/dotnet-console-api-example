@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using DotnetAPI.Data;
 using DotnetAPI.Models;
@@ -9,6 +10,10 @@ namespace DotnetAPI.Controllers;
 public class UsersSalaryEFController(IConfiguration config) : ControllerBase
 {
     private readonly DataContextEF _data = new(config);
+    private readonly IMapper _mapper = new MapperConfiguration(cfg =>
+    {
+        cfg.CreateMap<UserSalary, UserSalary>();
+    }).CreateMapper();
 
     [HttpGet()]
     public IEnumerable<UserSalary> GetUsersSalary()
@@ -43,7 +48,7 @@ public class UsersSalaryEFController(IConfiguration config) : ControllerBase
         UserSalary? userSalaryDb = _data.UserSalary.Where(u => u.UserId == userSalary.UserId).FirstOrDefault();
         if (userSalaryDb != null)
         {
-            userSalaryDb.Salary = userSalary.Salary;
+            _mapper.Map(userSalary, userSalaryDb);
             if (_data.SaveChanges() > 0) return Ok();
             else return BadRequest(errMessage);
         }

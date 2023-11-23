@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using DotnetAPI.Data;
 using DotnetAPI.Models;
@@ -10,6 +11,10 @@ namespace DotnetAPI.Controllers;
 public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
 {
     private readonly DataContextEF _data = new(config);
+    private readonly IMapper _mapper = new MapperConfiguration(cfg =>
+    {
+        cfg.CreateMap<UserJobInfo, UserJobInfo>();
+    }).CreateMapper();
 
     [HttpGet()]
     public IEnumerable<UserJobInfo> GetUsersJobInfo()
@@ -44,8 +49,7 @@ public class UsersJobInfoEFController(IConfiguration config) : ControllerBase
         UserJobInfo? userJobInfoDb = _data.UserJobInfo.Where(u => u.UserId == userJobInfo.UserId).FirstOrDefault();
         if (userJobInfoDb != null)
         {
-            userJobInfoDb.JobTitle = userJobInfo.JobTitle;
-            userJobInfoDb.Department = userJobInfo.Department;
+            _mapper.Map(userJobInfo, userJobInfoDb);
             if (_data.SaveChanges() > 0) return Ok();
             else return BadRequest(errMessage);
         }
