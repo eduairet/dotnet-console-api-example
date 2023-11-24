@@ -8,9 +8,10 @@ namespace DotnetAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersEFController(IConfiguration config) : ControllerBase
+public class UsersEFController(IConfiguration config, IUserRepository userRepository) : ControllerBase
 {
     private readonly DataContextEF _data = new(config);
+    private readonly IUserRepository _repo = userRepository;
     private readonly IMapper _mapper = new MapperConfiguration(cfg =>
     {
         cfg.CreateMap<UserAddDto, User>();
@@ -37,8 +38,8 @@ public class UsersEFController(IConfiguration config) : ControllerBase
     public IActionResult AddUser(UserAddDto user)
     {
         var userDb = _mapper.Map<User>(user);
-        _data.Add(userDb);
-        if (_data.SaveChanges() > 0) return Ok();
+        _repo.AddEntity(userDb);
+        if (_repo.SaveChanges()) return Ok();
         throw new Exception("Could not add user"); ;
     }
 
@@ -50,7 +51,7 @@ public class UsersEFController(IConfiguration config) : ControllerBase
         if (userDb != null)
         {
             _mapper.Map(user, userDb);
-            if (_data.SaveChanges() > 0) return Ok();
+            if (_repo.SaveChanges()) return Ok();
             else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);
@@ -63,8 +64,8 @@ public class UsersEFController(IConfiguration config) : ControllerBase
         User? userDb = _data.Users.Where(u => u.UserId == userId).FirstOrDefault();
         if (userDb != null)
         {
-            _data.Users.Remove(userDb);
-            if (_data.SaveChanges() > 0) return Ok();
+            _repo.RemoveEntity<User>(userDb);
+            if (_repo.SaveChanges()) return Ok();
             else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);

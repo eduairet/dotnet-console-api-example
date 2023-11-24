@@ -8,9 +8,30 @@
     -   It's usually added in the `Data` folder
 
         ```CSHARP
+        // Program.cs
+        // Allows the use of the IConfiguration interface
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        ```
+
+        ```CSHARP
+        // IUserRepository.cs
+        // Interface for the UserRepository class
         namespace DotnetAPI.Data;
 
-        public class UserRepository(IConfiguration config)
+        public interface IUserRepository
+        {
+            bool SaveChanges();
+            void AddEntity<T>(T entity);
+            void RemoveEntity<T>(T entity);
+        }
+        ```
+
+        ```CSHARP
+        // UserRepository.cs
+        // Class that implements the IUserRepository interface
+        namespace DotnetAPI.Data;
+
+        public class UserRepository(IConfiguration config) : IUserRepository
         {
             private readonly DataContextEF _data = new(config);
 

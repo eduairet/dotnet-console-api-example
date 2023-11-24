@@ -1,6 +1,6 @@
 namespace DotnetAPI.Data;
 
-public class UserRepository(IConfiguration config)
+public class UserRepository(IConfiguration config) : IUserRepository
 {
     private readonly DataContextEF _data = new(config);
 

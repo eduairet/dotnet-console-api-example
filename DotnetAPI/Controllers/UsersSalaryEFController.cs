@@ -7,9 +7,10 @@ namespace DotnetAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersSalaryEFController(IConfiguration config) : ControllerBase
+public class UsersSalaryEFController(IConfiguration config, IUserRepository userRepository) : ControllerBase
 {
     private readonly DataContextEF _data = new(config);
+    private readonly IUserRepository _repo = userRepository;
     private readonly IMapper _mapper = new MapperConfiguration(cfg =>
     {
         cfg.CreateMap<UserSalary, UserSalary>();
@@ -36,8 +37,8 @@ public class UsersSalaryEFController(IConfiguration config) : ControllerBase
     {
         if (_data.UserSalary.Any(u => u.UserId == userSalary.UserId))
             return BadRequest("User with the same ID already exists");
-        _data.Add(userSalary);
-        if (_data.SaveChanges() > 0) return Ok();
+        _repo.AddEntity(userSalary);
+        if (_repo.SaveChanges()) return Ok();
         throw new Exception("Could not add user salary");
     }
 
@@ -49,7 +50,7 @@ public class UsersSalaryEFController(IConfiguration config) : ControllerBase
         if (userSalaryDb != null)
         {
             _mapper.Map(userSalary, userSalaryDb);
-            if (_data.SaveChanges() > 0) return Ok();
+            if (_repo.SaveChanges()) return Ok();
             else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);
@@ -62,8 +63,8 @@ public class UsersSalaryEFController(IConfiguration config) : ControllerBase
         UserSalary? userSalaryDb = _data.UserSalary.Where(u => u.UserId == userId).FirstOrDefault();
         if (userSalaryDb != null)
         {
-            _data.UserSalary.Remove(userSalaryDb);
-            if (_data.SaveChanges() > 0) return Ok();
+           _repo.RemoveEntity(userSalaryDb);
+            if (_repo.SaveChanges()) return Ok();
             else return BadRequest(errMessage);
         }
         throw new Exception(errMessage);

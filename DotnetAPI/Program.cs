@@ -1,5 +1,6 @@
-using DotnetAPI.Utils;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using DotnetAPI.Utils;
+using DotnetAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddCors(options =>
 });
 // Lowercase routes
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+// Allows the use of the IConfiguration interface
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
