@@ -49,8 +49,13 @@
         }
         ```
 
+    -   This approach will help us to keep the controllers clean and readable since all the data access logic will be in the repository class
+
 -   Dependency Injection
 -   Authentication
+    -   It holds the logic for the authentication in the API
+    -   We save the user's password (prevention in case a hacker access the DB) in the database as a hash
+    - We also add a PasswordSalt to the user's password which is a random string that is added to the password before hashing it to make it more secure
     -   UserId from token
 -   Refactor reusable code
 -   Related data
