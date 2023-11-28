@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using dotenv.net;
 using DotnetAPI.Utils;
 using DotnetAPI.Data;
+
+DotEnv.Load();
+var envVars = DotEnv.Read();
+var PasswordKey = envVars["PASSWORD_KEY"];
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers(options =>
     // Routes with hyphens
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()))

@@ -55,7 +55,15 @@
 -   Authentication
     -   It holds the logic for the authentication in the API
     -   We save the user's password (prevention in case a hacker access the DB) in the database as a hash
-    - We also add a PasswordSalt to the user's password which is a random string that is added to the password before hashing it to make it more secure
+    -   We also add a `PasswordSalt` to the user's password which is a random string that is added to the password before hashing it to make it more secure
+    -   We'll need a password key to hash the password, we can use the `appsettings.json` file to store it or a package like `dotenv.net`
+        ```JSON
+        {
+            "AppSettings": {
+                "PasswordKey": "RANDOM_LARGE_STRING_HERE"
+            }
+        }
+        ```
     -   UserId from token
 -   Refactor reusable code
 -   Related data
