@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using dotenv.net;
 using DotnetAPI.Utils;
 using DotnetAPI.Data;
+using dotenv.net;
 
-DotEnv.Load();
-var envVars = DotEnv.Read();
-var PasswordKey = envVars["PASSWORD_KEY"];
-
+DotEnv.Read();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

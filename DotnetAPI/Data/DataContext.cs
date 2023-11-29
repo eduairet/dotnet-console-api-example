@@ -31,6 +31,20 @@ public class DataContext
         SqlConnection dbConnection = new(_connectionString);
         return dbConnection.Execute(sql) > 0;
     }
+    public bool ExecuteSqlWithParameters(string sql, List<SqlParameter> sqlParameters)
+    {
+        SqlCommand sqlCommand = new(sql);
+        foreach (var sqlParameter in sqlParameters)
+        {
+            sqlCommand.Parameters.Add(sqlParameter);
+        }
+        SqlConnection dbConnection = new(_connectionString);
+        dbConnection.Open();
+        sqlCommand.Connection = dbConnection;
+        int rowsAffected = sqlCommand.ExecuteNonQuery();
+        dbConnection.Close();
+        return rowsAffected > 0;
+    }
     public int ExecuteSqlRowCount(string sql)
     {
         SqlConnection dbConnection = new(_connectionString);
