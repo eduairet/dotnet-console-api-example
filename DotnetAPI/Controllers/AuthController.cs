@@ -38,14 +38,7 @@ public class AuthController : ControllerBase
                 {
                     rng.GetNonZeroBytes(passwordSalt); // Generate a random salt
                 }
-                string passwordSaltPlusString = PasswordKey + Convert.ToBase64String(passwordSalt);
-                byte[] passwordHash = KeyDerivation.Pbkdf2(
-                    password: userForRegistration.Password,
-                    salt: Encoding.ASCII.GetBytes(passwordSaltPlusString), // Create a salted hash of the password
-                    prf: KeyDerivationPrf.HMACSHA256, // Schema for password hashing
-                    iterationCount: 10000,
-                    numBytesRequested: 256 / 8
-                );
+                byte[] passwordHash = CreatePasswordHash(userForRegistration.Password, passwordSalt);
                 string sqlAddAuth = @"
                     INSERT INTO TutorialAppSchema.Auth (
                         Email,
@@ -69,5 +62,29 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult Login(UserForLoginDto userForLogin) { return Ok(); }
+    public IActionResult Login(UserForLoginDto userForLogin)
+    {
+        string sql = "SELECT PasswordHash, PasswordSalt FROM TutorialAppSchema.Auth WHERE Email = '" + userForLogin.Email + "'";
+        var userForConfirmation = _data.LoadDataSingle<UserForLoginConfirmationDto>(sql);
+        byte[] passwordHash = CreatePasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
+        if (passwordHash.SequenceEqual(userForConfirmation.PasswordHash)) // We can't use == to compare byte arrays
+        {
+            return Ok("Logged in");
+        }
+        return StatusCode(401, "Incorrect password");
+    }
+
+    private byte[] CreatePasswordHash(string password, byte[] passwordSalt)
+    {
+        string passwordSaltPlusString = PasswordKey + Convert.ToBase64String(passwordSalt);
+        byte[] passwordHash = KeyDerivation.Pbkdf2(
+            password: password,
+            salt: Encoding.ASCII.GetBytes(passwordSaltPlusString), // Create a salted hash of the password
+            prf: KeyDerivationPrf.HMACSHA256, // Schema for password hashing
+            iterationCount: 10000,
+            numBytesRequested: 256 / 8
+        );
+        return passwordHash;
+    }
+
 }
