@@ -33,6 +33,7 @@ public class AuthController : ControllerBase
             IEnumerable<string> existingUsers = _data.LoadData<string>(sql);
             if (existingUsers?.Count() == 0)
             {
+                string failedMessage = "Failed to register user";
                 byte[] passwordSalt = new byte[128 / 8];
                 using (var rng = RandomNumberGenerator.Create())
                 {
@@ -53,7 +54,23 @@ public class AuthController : ControllerBase
                 SqlParameter passwordHashParameter = new("@PasswordSalt", SqlDbType.VarBinary) { Value = passwordSalt };
                 sqlParameters.Add(passwordSaltParameter);
                 sqlParameters.Add(passwordHashParameter);
-                if (_data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters)) return Ok();
+                if (_data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters))
+                {
+                    string sqlAddUser = @"
+                        INSERT INTO TutorialAppSchema.Users
+                                (FirstName
+                                ,LastName
+                                ,Email
+                                ,Gender
+                                ,Active)
+                            VALUES
+                                ('" + userForRegistration.FirstName + @"'
+                                ,'" + userForRegistration.LastName + @"'
+                                ,'" + userForRegistration.Email + @"'
+                                ,'" + userForRegistration.Gender + @"'
+                                ,1);";
+                    if (_data.ExecuteSql(sqlAddUser)) return Ok();
+                }
                 return BadRequest("Failed to register user");
             }
             return BadRequest("Email already exists");
