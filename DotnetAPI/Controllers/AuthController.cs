@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
-using dotenv.net;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Text;
 using Microsoft.Data.SqlClient;
@@ -25,8 +24,8 @@ public class AuthController : ControllerBase
     {
         _config = config;
         _data = new(_config);
-        PasswordKey = DotEnv.Read()["PASSWORD_KEY"];
-        TokenKey = DotEnv.Read()["TOKEN_KEY"];
+        PasswordKey = _config["JwtSettings:PasswordKey"]!;
+        TokenKey = _config["JwtSettings:TokenKey"]!;
     }
 
     [HttpPost("register")]

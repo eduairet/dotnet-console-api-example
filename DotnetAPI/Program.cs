@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using DotnetAPI.Utils;
 using DotnetAPI.Data;
-using dotenv.net;
 
-DotEnv.Read();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
