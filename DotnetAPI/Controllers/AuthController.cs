@@ -9,9 +9,11 @@ using System.Data;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DotnetAPI.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class AuthController : ControllerBase
@@ -24,10 +26,11 @@ public class AuthController : ControllerBase
     {
         _config = config;
         _data = new(_config);
-        PasswordKey = _config["JwtSettings:PasswordKey"]!;
+        PasswordKey = _config["AppSettings:PasswordKey"]!;
         TokenKey = _config["JwtSettings:TokenKey"]!;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public IActionResult Register(UserForRegistrationDto userForRegistration)
     {
@@ -81,6 +84,7 @@ public class AuthController : ControllerBase
         return BadRequest("Passwords do not match");
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public IActionResult Login(UserForLoginDto userForLogin)
     {
@@ -96,6 +100,15 @@ public class AuthController : ControllerBase
             return Ok(new Dictionary<string, string> { { "token", CreateToken(userId) } });
         }
         return StatusCode(401, "Incorrect password");
+    }
+
+    [HttpGet("refresh-token")]
+    public string RefreshToken()
+    {
+        // User IS comes from the token claims
+        string sql = "SELECT UserId FROM TutorialAppSchema.Users WHERE UserId = '" + User.FindFirst("userId")?.Value + "'";
+        int userId = _data.LoadDataSingle<int>(sql);
+        return CreateToken(userId);
     }
 
     private byte[] CreatePasswordHash(string password, byte[] passwordSalt)

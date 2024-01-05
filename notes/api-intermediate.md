@@ -152,3 +152,90 @@
 
 -   Refactor reusable code
 -   Related data
+-   Refreshing token
+
+    -   We need to install the `Microsoft.AspNetCore.Authentication.JwtBearer` package
+    -   First we'll need to setup the Authentication middleware in the `Program.cs` file
+
+        ```CSHARP
+        // Program.cs
+        using Microsoft.AspNetCore.Authentication.JwtBearer;
+        using Microsoft.IdentityModel.Tokens;
+        using System.Text;
+
+        // ...
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:TokenKey"]!)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+        // ...
+        app.UseAuthentication(); // It should always be before the UseAuthorization() middleware
+        app.UseAuthorization();
+        ```
+
+    -   Then we need to use the `[Authorize]` attribute in the Auth controller
+
+        ```CSHARP
+        using Microsoft.AspNetCore.Mvc;
+        using System.Security.Cryptography;
+        using DotnetAPI.Data;
+        using DotnetAPI.Dtos;
+        using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+        using System.Text;
+        using Microsoft.Data.SqlClient;
+        using System.Data;
+        using System.Security.Claims;
+        using Microsoft.IdentityModel.Tokens;
+        using System.IdentityModel.Tokens.Jwt;
+        using Microsoft.AspNetCore.Authorization;
+
+        namespace DotnetAPI.Controllers;
+
+        [Authorize] // Attribute to require authentication
+        [ApiController]
+        [Route("[controller]")]
+        public class AuthController : ControllerBase
+        {
+            private readonly DataContext _data;
+            private readonly IConfiguration _config;
+            private readonly string PasswordKey;
+            private readonly string TokenKey;
+            public AuthController(IConfiguration config)
+            {
+                _config = config;
+                _data = new(_config);
+                PasswordKey = _config["AppSettings:PasswordKey"]!;
+                TokenKey = _config["JwtSettings:TokenKey"]!;
+            }
+
+            [AllowAnonymous] // Anyone can access this endpoint
+            [HttpPost("register")]
+            public IActionResult Register(UserForRegistrationDto userForRegistration)
+            { /* ... */ }
+
+            [AllowAnonymous] // Anyone can access this endpoint
+            [HttpPost("login")]
+            public IActionResult Login(UserForLoginDto userForLogin)
+            { /* ... */ }
+
+            [HttpGet("refresh-token")]
+            public string RefreshToken()
+            {
+                // User IS comes from the token claims
+                string sql = "SELECT UserId FROM TutorialAppSchema.Users WHERE UserId = '" + User.FindFirst("userId")?.Value + "'";
+                int userId = _data.LoadDataSingle<int>(sql);
+                return CreateToken(userId);
+            }
+
+            private byte[] CreatePasswordHash(string password, byte[] passwordSalt) { /* ... */ }
+
+            private string CreateToken(int userId) { /* ... */ }
+        }
+        ```

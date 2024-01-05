@@ -84,7 +84,7 @@
         "Database=DotNetCourseDatabase;",
         "TrustServerCertificate=true;",
         "Trusted_Connection=true;" // Windows Authentication
-    };
+    }; // We can add MultipleActiveResultSets=true; to allow multiple queries at the same time
     string connectionString = string.Join("", connectionOptions);
     // Server=localhost;Database=DotNetCourseDatabase;TrustServerCertificate=true;Trusted_Connection=true;
     ```
