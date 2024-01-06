@@ -2,33 +2,20 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Text;
 using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
+using DotnetAPI.Helpers;
 
 namespace DotnetAPI.Controllers;
 
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(IConfiguration config) : ControllerBase
 {
-    private readonly DataContext _data;
-    private readonly IConfiguration _config;
-    private readonly string PasswordKey;
-    private readonly string TokenKey;
-    public AuthController(IConfiguration config)
-    {
-        _config = config;
-        _data = new(_config);
-        PasswordKey = _config["AppSettings:PasswordKey"]!;
-        TokenKey = _config["JwtSettings:TokenKey"]!;
-    }
+    private readonly DataContext _data = new(config);
+    private readonly AuthHelper _authHelper = new(config);
 
     [AllowAnonymous]
     [HttpPost("register")]
@@ -45,7 +32,7 @@ public class AuthController : ControllerBase
                 {
                     rng.GetNonZeroBytes(passwordSalt); // Generate a random salt
                 }
-                byte[] passwordHash = CreatePasswordHash(userForRegistration.Password, passwordSalt);
+                byte[] passwordHash = _authHelper.CreatePasswordHash(userForRegistration.Password, passwordSalt);
                 string sqlAddAuth = @"
                     INSERT INTO TutorialAppSchema.Auth (
                         Email,
@@ -90,14 +77,14 @@ public class AuthController : ControllerBase
     {
         string sql = "SELECT PasswordHash, PasswordSalt FROM TutorialAppSchema.Auth WHERE Email = '" + userForLogin.Email + "'";
         var userForConfirmation = _data.LoadDataSingle<UserForLoginConfirmationDto>(sql);
-        byte[] passwordHash = CreatePasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
+        byte[] passwordHash = _authHelper.CreatePasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
         if (passwordHash.SequenceEqual(userForConfirmation.PasswordHash)) // We can't use == to compare byte arrays
         {
             // Get the user id from the database using the email
             string sqlGetUserId = "SELECT UserId FROM TutorialAppSchema.Users WHERE Email = '" + userForLogin.Email + "'";
             int userId = _data.LoadDataSingle<int>(sqlGetUserId);
             // Return a dictionary with the token key and the token value
-            return Ok(new Dictionary<string, string> { { "token", CreateToken(userId) } });
+            return Ok(new Dictionary<string, string> { { "token", _authHelper.CreateToken(userId) } });
         }
         return StatusCode(401, "Incorrect password");
     }
@@ -108,48 +95,6 @@ public class AuthController : ControllerBase
         // User IS comes from the token claims
         string sql = "SELECT UserId FROM TutorialAppSchema.Users WHERE UserId = '" + User.FindFirst("userId")?.Value + "'";
         int userId = _data.LoadDataSingle<int>(sql);
-        return CreateToken(userId);
-    }
-
-    private byte[] CreatePasswordHash(string password, byte[] passwordSalt)
-    {
-        string passwordSaltPlusString = PasswordKey + Convert.ToBase64String(passwordSalt);
-        byte[] passwordHash = KeyDerivation.Pbkdf2(
-            password: password,
-            salt: Encoding.ASCII.GetBytes(passwordSaltPlusString), // Create a salted hash of the password
-            prf: KeyDerivationPrf.HMACSHA256, // Schema for password hashing
-            iterationCount: 10000,
-            numBytesRequested: 256 / 8
-        );
-        return passwordHash;
-    }
-
-    private string CreateToken(int userId)
-    {
-        // Create the claims for the token
-        Claim[] claims =
-        [
-            new("userId", userId.ToString())
-        ];
-
-        // Create a key from the token key, we need to convert it to a byte array
-        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(TokenKey));
-
-        // Create the credentials for the token using the key and the algorithm to sign it
-        SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256Signature);
-
-
-        SecurityTokenDescriptor tokenDescriptor = new()
-        {
-            Subject = new ClaimsIdentity(claims), // Claims for the token
-            SigningCredentials = credentials, // Credentials for the token
-            Expires = DateTime.Now.AddDays(7) // Token expires in 7 days
-        };
-
-        // Create the token handler and create the token using the token descriptor
-        JwtSecurityTokenHandler tokenHandler = new();
-        SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
+        return _authHelper.CreateToken(userId);
     }
 }
