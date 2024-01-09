@@ -46,3 +46,5 @@
 15. [SQL](./notes/sql.md)
 16. [API Basics](./notes/api-basics.md)
 17. [API Intermediate](./notes/api-intermediate.md)
+18. [Stored Procedures](./notes/stored-procedures.md)
+19. [API Advanced](./notes/api-advanced.md)
