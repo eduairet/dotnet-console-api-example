@@ -75,6 +75,23 @@ public partial class PostsController(IConfiguration config) : ControllerBase
         return posts;
     }
 
+    [AllowAnonymous]
+    [HttpGet("search")]
+    public IEnumerable<Post> Search(string searchTerm)
+    {
+        string sql = @"SELECT Id
+                ,UserId
+                ,Title
+                ,Content
+                ,CreatedAt
+                ,UpdatedAt
+            FROM TutorialAppSchema.Posts
+            WHERE Title LIKE '%" + searchTerm + @"%'
+            OR Content LIKE '%" + searchTerm + "%'";
+        IEnumerable<Post> posts = _data.LoadData<Post>(sql);
+        return posts;
+    }
+
     [HttpPost]
     public IActionResult AddPost(PostToAddDto postToAdd)
     {
