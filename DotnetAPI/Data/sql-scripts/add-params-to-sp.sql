@@ -3,7 +3,7 @@ GO
 
 ALTER PROCEDURE TutorialAppSchema.spUsers_Get
     /* EXEC TutorialAppSchema.sp_Get @UserId = 1 */
-    @UserId INT
+    @UserId INT = NULL
 AS
 BEGIN
     SELECT Users.UserId,
@@ -13,5 +13,5 @@ BEGIN
         Users.Gender,
         Users.Active
     FROM TutorialAppSchema.Users AS Users
-    WHERE Users.UserId = @UserId
+    WHERE Users.UserId = ISNULL(@UserId, Users.UserId)
 END

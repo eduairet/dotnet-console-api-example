@@ -1,1 +1,4 @@
-EXEC TutorialAppSchema.sp_Get
+USE DotNetCourseDatabase
+GO
+
+EXEC TutorialAppSchema.spUsers_Get @UserId = 1

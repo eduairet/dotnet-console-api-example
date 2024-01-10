@@ -43,3 +43,11 @@
         WHERE Users.UserId = @UserId
     END
     ```
+
+-   We can also add default values to the parameters
+
+    ```SQL
+    @UserId INT = NULL -- Making it NULL will allows to handle the case when the parameter is not passed
+    --
+    WHERE Users.UserId = ISNULL(@UserId, Users.UserId) -- If the parameter is not passed then the UserId will be used
+    ```
