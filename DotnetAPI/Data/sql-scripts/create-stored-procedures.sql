@@ -1,8 +1,9 @@
 USE DotNetCourseDatabase
 GO
 
-CREATE PROCEDURE TutorialAppSchema.sp_Get
--- EXEC TutorialAppSchema.sp_Get
+CREATE PROCEDURE TutorialAppSchema.spUsers_Get
+/* EXEC TutorialAppSchema.spUsers_Get */
+
 AS
 BEGIN
     SELECT Users.UserId,
@@ -14,4 +15,4 @@ BEGIN
     FROM TutorialAppSchema.Users AS Users
 END
 
--- For modifying it use: ALTER PROCEDURE TutorialAppSchema.sp_Get
+/* For modifying it use: ALTER PROCEDURE TutorialAppSchema.spUsers_Get */

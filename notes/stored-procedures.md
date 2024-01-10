@@ -21,3 +21,25 @@
 
     -- For modifying it use: ALTER PROCEDURE TutorialAppSchema.sp_Get
     ```
+
+-   We can add parameters to the procedures
+
+    ```SQL
+    USE DotNetCourseDatabase
+    GO
+
+    ALTER PROCEDURE TutorialAppSchema.spUsers_Get
+        -- EXEC TutorialAppSchema.sp_Get @UserId = 1 OR EXEC TutorialAppSchema.sp_Get 1 first approach is less prone to errors
+        @UserId INT
+    AS
+    BEGIN
+        SELECT Users.UserId,
+            Users.FirstName,
+            Users.LastName,
+            Users.Email,
+            Users.Gender,
+            Users.Active
+        FROM TutorialAppSchema.Users AS Users
+        WHERE Users.UserId = @UserId
+    END
+    ```
