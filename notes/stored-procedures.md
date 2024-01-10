@@ -91,3 +91,64 @@
         WHERE Users.UserId = ISNULL(@UserId, Users.UserId)
     END
     ```
+
+-   Temporary tables
+
+    -   Temporary tables are tables that are created in the tempdb database and are automatically deleted when they are no longer used.
+    -   They are useful when we need to store data temporarily, for example, when we need to store the result of a query to use it later.
+    -   There are two types of temporary tables:
+        -   Local temporary tables: They are only visible in the current session and are deleted when the session is closed.
+        -   Global temporary tables: They are visible to all sessions and are deleted when the last session that uses them is closed.
+    -   ```SQL
+        USE DotNetCourseDatabase
+        GO
+
+        ALTER PROCEDURE TutorialAppSchema.spUsers_Get
+            @UserId INT = NULL
+        AS
+        BEGIN
+            DROP TABLE IF EXISTS #AvgDeptSalary
+            -- Drop the temp table if it exists to avoid errors
+            /* Older versions of SQL Server do not support the IF EXISTS clause
+            IF OBJECT_ID('tempdb..#AvgDeptSalary', 'U') IS NOT NULL
+                BEGIN
+                    DROP TABLE #AvgDeptSalary
+                END
+            */
+
+            SELECT UserJobInfo.Department
+                , AVG(UserSalary.Salary) AS AvgSalary
+            INTO #AvgDeptSalary
+            -- # = Local temp table | ## = Global temp table
+            FROM TutorialAppSchema.Users AS Users
+                LEFT JOIN TutorialAppSchema.UserSalary AS UserSalary
+                ON UserSalary.UserId = Users.UserId
+                LEFT JOIN TutorialAppSchema.UserJobInfo AS UserJobInfo
+                ON UserJobInfo.UserId = Users.UserId
+            GROUP BY UserJobInfo.Department
+
+            /* To make querying in the new table faster we can create a new clustered index */
+            CREATE CLUSTERED INDEX cix_#AvgDeptSalary_Department ON #AvgDeptSalary(Department)
+
+            SELECT Users.UserId,
+                Users.FirstName,
+                Users.LastName,
+                Users.Email,
+                Users.Gender,
+                Users.Active,
+                UserJobInfo.Department,
+                UserJobInfo.JobTitle,
+                UserSalary.Salary,
+                UserAvgSalary.AvgSalary
+            FROM TutorialAppSchema.Users AS Users
+                LEFT JOIN TutorialAppSchema.UserSalary AS UserSalary
+                ON UserSalary.UserId = Users.UserId
+                LEFT JOIN TutorialAppSchema.UserJobInfo AS UserJobInfo
+                ON UserJobInfo.UserId = Users.UserId
+                LEFT JOIN #AvgDeptSalary AS UserAvgSalary
+                ON UserAvgSalary.Department = UserJobInfo.Department
+            WHERE Users.UserId = ISNULL(@UserId, Users.UserId)
+            AND ISNULL(Users.Active, 0) = ISNULL(@Active, ISNULL(Users.Active, 0))
+            -- or: AND ISNULL(Users.Active, 0) = COALESCE(@Active, Users.Active, 0)
+        END
+        ```
