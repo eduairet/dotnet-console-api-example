@@ -2,7 +2,7 @@ USE DotNetCourseDatabase
 GO
 
 -- CREATE OR ALTER Works on newer versions of SQL Server only
-CREATE OR ALTER PROCEDURE TutorialAppSchema.spUser_Upsert
+CREATE OR ALTER PROCEDURE TutorialAppSchema.spUsers_Upsert
     @FirstName NVARCHAR(50),
     @LastName NVARCHAR(50),
     @Email NVARCHAR(50),
