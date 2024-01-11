@@ -20,53 +20,24 @@ public class UsersController(IConfiguration config) : ControllerBase
     }
 
     [HttpGet()] // Route path inside the parenthesis
-    public IEnumerable<User> GetUsers()
+    public IEnumerable<UserComplete> GetUsers(int? userId, bool? isActive)
     {
-        string sql = @"
-            SELECT TOP (10) UserId
-                ,FirstName
-                ,LastName
-                ,Email
-                ,Gender
-                ,Active
-            FROM TutorialAppSchema.Users";
-        IEnumerable<User> users = _data.LoadData<User>(sql);
+        string sql = "EXEC TutorialAppSchema.spUsers_Get";
+        if (userId != null && userId > 0) sql += $" @UserID = {userId},";
+        if (isActive != null) sql += $" @Active = {((bool)isActive ? 1 : 0)},";
+        sql = sql.TrimEnd(',');
+        IEnumerable<UserComplete> users = _data.LoadData<UserComplete>(sql);
         return users;
-    }
-
-    [HttpGet("{userId}")] // Parameters can be added this way
-    public User GetUser(int userId)
-    {
-        string sql = @"
-            SELECT UserId
-                ,FirstName
-                ,LastName
-                ,Email
-                ,Gender
-                ,Active
-            FROM TutorialAppSchema.Users
-                WHERE UserID = " + userId.ToString();
-        User user = _data.LoadDataSingle<User>(sql);
-        return user;
     }
 
     [HttpPost()]
     public IActionResult AddUser(UserAddDto user)
     {
-        string sql = @"
-            INSERT INTO TutorialAppSchema.Users
-                    (FirstName
-                    ,LastName
-                    ,Email
-                    ,Gender
-                    ,Active)
-                VALUES
-                    ('" + user.FirstName + "'" +
-                    ",'" + user.LastName + "'" +
-                    ",'" + user.Email + "'" +
-                    ",'" + user.Gender + "'" +
-                    ",'" + user.Active + "')";
-
+        string sql = @$"EXEC TutorialAppSchema.spUsers_Upsert @FirstName = '{user.FirstName}'
+            , @LastName = '{user.LastName}'
+            , @Email = '{user.Email}'
+            , @Gender = '{user.Gender}'
+            , @Active = {(user.Active ? 1 : 0)}";
         if (_data.ExecuteSql(sql)) return Ok();
         throw new Exception("Could not add user");
     }
@@ -74,15 +45,12 @@ public class UsersController(IConfiguration config) : ControllerBase
     [HttpPut()]
     public IActionResult EditUser(User user)
     {
-        string sql = @"
-            UPDATE TutorialAppSchema.Users
-            SET FirstName = '" + user.FirstName +
-                "',LastName = '" + user.LastName +
-                "',Email = '" + user.Email +
-                "',Gender = '" + user.Gender +
-                "',Active = " + (user.Active ? 1 : 0) +
-            " WHERE UserId = " + user.UserId.ToString();
-
+        string sql = @$"EXEC TutorialAppSchema.spUsers_Upsert @UserId = {user.UserId}
+            , @FirstName = '{user.FirstName}'
+            , @LastName = '{user.LastName}'
+            , @Email = '{user.Email}'
+            , @Gender = '{user.Gender}'
+            , @Active = {(user.Active ? 1 : 0)}";
         if (_data.ExecuteSql(sql)) return Ok();
         throw new Exception("Could not edit user");
     }
@@ -90,9 +58,7 @@ public class UsersController(IConfiguration config) : ControllerBase
     [HttpDelete("{userId}")]
     public IActionResult DeleteUser(int userId)
     {
-        string sql = @"
-            DELETE FROM TutorialAppSchema.Users
-            WHERE UserId = " + userId.ToString();
+        string sql = $"EXEC TutorialAppSchema.spUsers_Delete @UserId = {userId}";
         if (_data.ExecuteSql(sql)) return Ok();
         throw new Exception("Could not delete user");
     }
@@ -108,6 +74,6 @@ public class UsersController(IConfiguration config) : ControllerBase
         {
             return ex.Message;
         }
-        return "Populated DB";
+        return "DB Populated";
     }
 }
