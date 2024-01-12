@@ -7,12 +7,12 @@ CREATE OR ALTER PROCEDURE TutorialAppSchema.spPosts_Upsert
     @UserId INT,
     @Title NVARCHAR(255),
     @Content NVARCHAR(MAX),
-    @Id INT = NULL
+    @PostId INT = NULL
 AS
 BEGIN
     IF NOT EXISTS (SELECT *
     FROM TutorialAppSchema.Posts
-    WHERE Id = @Id)
+    WHERE Id = @PostId)
         BEGIN
         INSERT INTO TutorialAppSchema.Posts
             (
@@ -38,7 +38,7 @@ BEGIN
                 Title = @Title,
                 Content = @Content,
                 UpdatedAt = GETDATE()
-            WHERE Id = @Id
+            WHERE Id = @PostId
             AND UserId = @UserId
     END
 END

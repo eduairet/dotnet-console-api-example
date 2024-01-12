@@ -15,47 +15,13 @@ public partial class PostsController(IConfiguration config) : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public IEnumerable<Post> Posts()
+    public IEnumerable<Post> Posts(int? userId, int? postId, string? searchValue)
     {
-        string sql = @"SELECT Id
-                ,UserId
-                ,Title
-                ,Content
-                ,CreatedAt
-                ,UpdatedAt
-            FROM TutorialAppSchema.Posts";
-        IEnumerable<Post> posts = _data.LoadData<Post>(sql);
-        return posts;
-    }
-
-    [AllowAnonymous]
-    [HttpGet("by-user/{userId:int}")]
-    public IEnumerable<Post> PostsByUser(int userId)
-    {
-        string sql = @"SELECT Id
-                ,UserId
-                ,Title
-                ,Content
-                ,CreatedAt
-                ,UpdatedAt
-            FROM TutorialAppSchema.Posts
-            WHERE UserId = " + userId.ToString();
-        IEnumerable<Post> posts = _data.LoadData<Post>(sql);
-        return posts;
-    }
-
-    [AllowAnonymous]
-    [HttpGet("{postId:int}")]
-    public IEnumerable<Post> Post(int postId)
-    {
-        string sql = @"SELECT Id
-                ,UserId
-                ,Title
-                ,Content
-                ,CreatedAt
-                ,UpdatedAt
-            FROM TutorialAppSchema.Posts
-            WHERE id = " + postId.ToString();
+        string sql = $"EXEC TutorialAppSchema.spPosts_Get";
+        if (userId != null && userId > 0) sql += $" @UserId = {userId},";
+        if (postId != null && postId > 0) sql += $" @PostId = {postId},";
+        if (searchValue != null) sql += $" @SearchValue = '{searchValue}',";
+        sql = sql.TrimEnd(',');
         IEnumerable<Post> posts = _data.LoadData<Post>(sql);
         return posts;
     }
@@ -63,78 +29,27 @@ public partial class PostsController(IConfiguration config) : ControllerBase
     [HttpGet("my-posts")]
     public IEnumerable<Post> MyPosts()
     {
-        string sql = @"SELECT Id
-                ,UserId
-                ,Title
-                ,Content
-                ,CreatedAt
-                ,UpdatedAt
-            FROM TutorialAppSchema.Posts
-            WHERE UserId = '" + User.FindFirst("userId")?.Value + "'";
+        string sql = $"EXEC TutorialAppSchema.spPosts_Get @UserId = {User.FindFirst("userId")?.Value}";
         IEnumerable<Post> posts = _data.LoadData<Post>(sql);
         return posts;
     }
 
-    [AllowAnonymous]
-    [HttpGet("search")]
-    public IEnumerable<Post> Search(string searchTerm)
-    {
-        string sql = @"SELECT Id
-                ,UserId
-                ,Title
-                ,Content
-                ,CreatedAt
-                ,UpdatedAt
-            FROM TutorialAppSchema.Posts
-            WHERE Title LIKE '%" + searchTerm + @"%'
-            OR Content LIKE '%" + searchTerm + "%'";
-        IEnumerable<Post> posts = _data.LoadData<Post>(sql);
-        return posts;
-    }
-
-    [HttpPost]
-    public IActionResult AddPost(PostToAddDto postToAdd)
-    {
-        string sql = @"
-            INSERT INTO TutorialAppSchema.Posts (
-                UserId,
-                Title,
-                Content,
-                CreatedAt,
-                UpdatedAt
-            ) VALUES (
-                " + User.FindFirst("userId")?.Value + @"
-                ,'" + postToAdd.Title.Replace("'", "''") + @"'
-                ,'" + postToAdd.Content.Replace("'", "''") + @"'
-                , GETDATE()
-                , GETDATE()
-            )";
-        if (_data.ExecuteSql(sql)) return Ok();
-        return BadRequest("Failed to create post");
-    }
 
     [HttpPut]
-    public IActionResult EditPost(PostToEditDto postToAdd)
+    public IActionResult Upsert(PostUpsertDto post)
     {
-        string sql = @"
-            UPDATE TutorialAppSchema.Posts
-            SET
-                Title = '" + postToAdd.Title.Replace("'", "''") + @"'
-                ,Content = '" + postToAdd.Content.Replace("'", "''") + @"'
-                ,UpdatedAt = GETDATE()
-            WHERE Id = " + postToAdd.Id.ToString() + @"
-            AND UserId = " + User.FindFirst("userId")?.Value;
+        string sql = @$"EXEC TutorialAppSchema.spPosts_Upsert @UserId = {User.FindFirst("userId")?.Value}
+            , @Title = '{post.Title}'
+            , @Content = '{post.Content}'";
+        if (post.Id != null && post.Id > 0) sql += $"\n, @PostId = {post.Id}";
         if (_data.ExecuteSql(sql)) return Ok();
-        return BadRequest("Failed to edit post");
+        return BadRequest("Failed to create post");
     }
 
     [HttpDelete]
     public IActionResult DeletePost(int postId)
     {
-        string sql = @"
-            DELETE FROM TutorialAppSchema.Posts
-            WHERE Id = " + postId.ToString() + @"
-            AND UserId = " + User.FindFirst("userId")?.Value;
+        string sql = $"EXEC TutorialAppSchema.spPosts_Delete @UserId = {User.FindFirst("userId")?.Value}, @PostId = {postId}";
         if (_data.ExecuteSql(sql)) return Ok();
         return BadRequest("Failed to delete post");
     }
