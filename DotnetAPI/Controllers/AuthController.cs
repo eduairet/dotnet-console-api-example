@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
-using Microsoft.Data.SqlClient;
-using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using DotnetAPI.Helpers;
 
@@ -27,23 +24,7 @@ public class AuthController(IConfiguration config) : ControllerBase
             IEnumerable<string> existingUsers = _data.LoadData<string>(sql);
             if (existingUsers?.Count() == 0)
             {
-                byte[] passwordSalt = new byte[128 / 8];
-                using (var rng = RandomNumberGenerator.Create())
-                {
-                    rng.GetNonZeroBytes(passwordSalt); // Generate a random salt
-                }
-                byte[] passwordHash = _authHelper.CreatePasswordHash(userForRegistration.Password, passwordSalt);
-                string sqlAddAuth = @$"EXEC TutorialAppSchema.spAuth_Upsert @Email = @EmailParam,
-                    @PasswordHash = @PasswordHashParam,
-                    @PasswordSalt = @PasswordSaltParam";
-                List<SqlParameter> sqlParameters = [];
-                SqlParameter emailParameter = new("@EmailParam", SqlDbType.VarChar) { Value = userForRegistration.Email };
-                sqlParameters.Add(emailParameter);
-                SqlParameter passwordSaltParameter = new("@PasswordHashParam", SqlDbType.VarBinary) { Value = passwordHash };
-                sqlParameters.Add(passwordSaltParameter);
-                SqlParameter passwordHashParameter = new("@PasswordSaltParam", SqlDbType.VarBinary) { Value = passwordSalt };
-                sqlParameters.Add(passwordHashParameter);
-                if (_data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters))
+                if (_authHelper.SetPassword(userForRegistration.Email, userForRegistration.Password))
                 {
                     string sqlAddUser = @$"EXEC TutorialAppSchema.spUsers_Upsert @FirstName = '{userForRegistration.FirstName}'
                                 , @LastName = '{userForRegistration.LastName}'
@@ -60,6 +41,14 @@ public class AuthController(IConfiguration config) : ControllerBase
             return BadRequest("Email already exists");
         }
         return BadRequest("Passwords do not match");
+    }
+
+    [HttpPut("reset-password")]
+    public IActionResult ResetPassword(UserForLoginDto userForResetPassword)
+    {
+        if (_authHelper.SetPassword(userForResetPassword.Email, userForResetPassword.Password))
+            return Ok();
+        return BadRequest("Failed to reset password");
     }
 
     [AllowAnonymous]
