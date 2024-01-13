@@ -23,7 +23,7 @@ public class AuthController(IConfiguration config) : ControllerBase
     {
         if (userForRegistration.Password == userForRegistration.PasswordConfirm)
         {
-            string sql = "SELECT Email FROM TutorialAppSchema.Auth WHERE Email = '" + userForRegistration.Email + "'";
+            string sql = $"EXEC TutorialAppSchema.spAuth_EmailExists @Email = '{userForRegistration.Email}'";
             IEnumerable<string> existingUsers = _data.LoadData<string>(sql);
             if (existingUsers?.Count() == 0)
             {
@@ -33,35 +33,26 @@ public class AuthController(IConfiguration config) : ControllerBase
                     rng.GetNonZeroBytes(passwordSalt); // Generate a random salt
                 }
                 byte[] passwordHash = _authHelper.CreatePasswordHash(userForRegistration.Password, passwordSalt);
-                string sqlAddAuth = @"
-                    INSERT INTO TutorialAppSchema.Auth (
-                        Email,
-                        PasswordHash,
-                        PasswordSalt
-                    ) VALUES (
-                        '" + userForRegistration.Email + @"',
-                        @PasswordHash, @PasswordSalt
-                    )";
+                string sqlAddAuth = @$"EXEC TutorialAppSchema.spAuth_Upsert @Email = @EmailParam,
+                    @PasswordHash = @PasswordHashParam,
+                    @PasswordSalt = @PasswordSaltParam";
                 List<SqlParameter> sqlParameters = [];
-                SqlParameter passwordSaltParameter = new("@PasswordHash", SqlDbType.VarBinary) { Value = passwordHash };
-                SqlParameter passwordHashParameter = new("@PasswordSalt", SqlDbType.VarBinary) { Value = passwordSalt };
+                SqlParameter emailParameter = new("@EmailParam", SqlDbType.VarChar) { Value = userForRegistration.Email };
+                sqlParameters.Add(emailParameter);
+                SqlParameter passwordSaltParameter = new("@PasswordHashParam", SqlDbType.VarBinary) { Value = passwordHash };
                 sqlParameters.Add(passwordSaltParameter);
+                SqlParameter passwordHashParameter = new("@PasswordSaltParam", SqlDbType.VarBinary) { Value = passwordSalt };
                 sqlParameters.Add(passwordHashParameter);
                 if (_data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters))
                 {
-                    string sqlAddUser = @"
-                        INSERT INTO TutorialAppSchema.Users
-                                (FirstName
-                                ,LastName
-                                ,Email
-                                ,Gender
-                                ,Active)
-                            VALUES
-                                ('" + userForRegistration.FirstName + @"'
-                                ,'" + userForRegistration.LastName + @"'
-                                ,'" + userForRegistration.Email + @"'
-                                ,'" + userForRegistration.Gender + @"'
-                                ,1);";
+                    string sqlAddUser = @$"EXEC TutorialAppSchema.spUsers_Upsert @FirstName = '{userForRegistration.FirstName}'
+                                , @LastName = '{userForRegistration.LastName}'
+                                , @Email = '{userForRegistration.Email}'
+                                , @Gender = '{userForRegistration.Gender}'
+                                , @JobTitle = '{userForRegistration.JobTitle}'
+                                , @Department = '{userForRegistration.Department}'
+                                , @Salary = {userForRegistration.Salary}
+                                , @Active = 1";
                     if (_data.ExecuteSql(sqlAddUser)) return Ok();
                 }
                 return BadRequest("Failed to register user");

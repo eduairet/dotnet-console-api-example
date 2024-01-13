@@ -1,9 +1,6 @@
 USE DotNetCourseDatabase
 GO
 
-DROP PROCEDURE IF EXISTS TutorialAppSchema.spAuth_RecoverPassword
-GO
-
 CREATE OR ALTER PROCEDURE TutorialAppSchema.spAuth_Upsert
     @Email NVARCHAR(50),
     @PasswordHash VARBINARY(MAX) = NULL,
