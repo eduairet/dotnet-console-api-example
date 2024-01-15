@@ -1,4 +1,3 @@
-using System.Data;
 using Microsoft.Data.SqlClient;
 using Dapper;
 using Newtonsoft.Json;
@@ -26,7 +25,7 @@ public class DataContext
         SqlConnection dbConnection = new(_connectionString);
         return dbConnection.QuerySingle<T>(sql);
     }
-    public IEnumerable<T> LoadDataWithParams<T>(string sql, List<SqlParameter> sqlParameters)
+    public IEnumerable<T> LoadDataWithParams<T>(string sql, DynamicParameters sqlParameters)
     {
         SqlConnection dbConnection = new(_connectionString);
         return dbConnection.Query<T>(sql, sqlParameters);
