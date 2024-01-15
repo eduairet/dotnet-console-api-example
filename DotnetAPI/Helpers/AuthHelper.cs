@@ -64,13 +64,10 @@ public partial class AuthHelper(IConfiguration config)
         string sqlAddAuth = @$"EXEC TutorialAppSchema.spAuth_Upsert @Email = @EmailParam,
                     @PasswordHash = @PasswordHashParam,
                     @PasswordSalt = @PasswordSaltParam";
-        List<SqlParameter> sqlParameters = [];
-        SqlParameter emailParameter = new("@EmailParam", SqlDbType.VarChar) { Value = email };
-        sqlParameters.Add(emailParameter);
-        SqlParameter passwordSaltParameter = new("@PasswordHashParam", SqlDbType.VarBinary) { Value = passwordHash };
-        sqlParameters.Add(passwordSaltParameter);
-        SqlParameter passwordHashParameter = new("@PasswordSaltParam", SqlDbType.VarBinary) { Value = passwordSalt };
-        sqlParameters.Add(passwordHashParameter);
+        DynamicParameters sqlParameters = new();
+        sqlParameters.Add("@EmailParam", email, DbType.String);
+        sqlParameters.Add("@PasswordHashParam", passwordHash, DbType.Binary);
+        sqlParameters.Add("@PasswordSaltParam", passwordSalt, DbType.Binary);
         return _data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
     }
 

@@ -20,7 +20,7 @@
     -   These are used to prevent SQL injection attacks
     -   Types of parameterized queries
 
-        -   `List<SqlParameter>` are used for for queries that return multiple rows
+        -   `List<SqlParameter>` can be used in certain cases
             ```C#
             string sqlAddAuth = @$"EXEC TutorialAppSchema.spAuth_Upsert @Email = @EmailParam,
             @PasswordHash = @PasswordHashParam,
@@ -34,7 +34,24 @@
             sqlParameters.Add(passwordHashParameter);
             return _data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
             ```
-        -   `DynamicParameters` are used for single queries
+            -   Execute with parameters function:
+                ```C#
+                public bool ExecuteSqlWithParameters(string sql, List<SqlParameter> sqlParameters)
+                {
+                    SqlCommand sqlCommand = new(sql);
+                    foreach (var sqlParameter in sqlParameters)
+                    {
+                        sqlCommand.Parameters.Add(sqlParameter);
+                    }
+                    SqlConnection dbConnection = new(_connectionString);
+                    dbConnection.Open();
+                    sqlCommand.Connection = dbConnection;
+                    int rowsAffected = sqlCommand.ExecuteNonQuery();
+                    dbConnection.Close();
+                    return rowsAffected > 0;
+                }
+                ```
+        -   `DynamicParameters` are a more clean way to use parameterized queries and they're cleaner
             ```C#
             string sql = $"EXEC TutorialAppSchema.spAuth_Get @Email = @EmailParam";
             DynamicParameters sqlParameters = new(); // Wee need to use DynamicParameters for single row results
