@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
-using Microsoft.AspNetCore.Authorization;
 using DotnetAPI.Helpers;
 
 namespace DotnetAPI.Controllers;
@@ -55,13 +55,12 @@ public class AuthController(IConfiguration config) : ControllerBase
     [HttpPost("login")]
     public IActionResult Login(UserForLoginDto userForLogin)
     {
-        string sql = "SELECT PasswordHash, PasswordSalt FROM TutorialAppSchema.Auth WHERE Email = '" + userForLogin.Email + "'";
-        var userForConfirmation = _data.LoadDataSingle<UserForLoginConfirmationDto>(sql);
+        var userForConfirmation = _authHelper.Login(userForLogin.Email);
         byte[] passwordHash = _authHelper.CreatePasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
-        if (passwordHash.SequenceEqual(userForConfirmation.PasswordHash)) // We can't use == to compare byte arrays
+        if (passwordHash.SequenceEqual(userForConfirmation.PasswordHash))
         {
             // Get the user id from the database using the email
-            string sqlGetUserId = "SELECT UserId FROM TutorialAppSchema.Users WHERE Email = '" + userForLogin.Email + "'";
+            string sqlGetUserId = $"SELECT UserId FROM TutorialAppSchema.Users WHERE Email = '{userForLogin.Email}'";
             int userId = _data.LoadDataSingle<int>(sqlGetUserId);
             // Return a dictionary with the token key and the token value
             return Ok(new Dictionary<string, string> { { "token", _authHelper.CreateToken(userId) } });
@@ -72,8 +71,8 @@ public class AuthController(IConfiguration config) : ControllerBase
     [HttpGet("refresh-token")]
     public string RefreshToken()
     {
-        // User IS comes from the token claims
-        string sql = "SELECT UserId FROM TutorialAppSchema.Users WHERE UserId = '" + User.FindFirst("userId")?.Value + "'";
+        // User ID comes from the token claims
+        string sql = $"SELECT UserId FROM TutorialAppSchema.Users WHERE UserId = '{User.FindFirst("userId")?.Value}'";
         int userId = _data.LoadDataSingle<int>(sql);
         return _authHelper.CreateToken(userId);
     }

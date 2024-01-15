@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using DotnetAPI.Data;
+using DotnetAPI.Dtos;
+using Dapper;
 
 namespace DotnetAPI.Helpers;
 
@@ -70,5 +72,13 @@ public partial class AuthHelper(IConfiguration config)
         SqlParameter passwordHashParameter = new("@PasswordSaltParam", SqlDbType.VarBinary) { Value = passwordSalt };
         sqlParameters.Add(passwordHashParameter);
         return _data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
+    }
+
+    public UserForLoginConfirmationDto Login(string email)
+    {
+        string sql = $"EXEC TutorialAppSchema.spAuth_Get @Email = @EmailParam";
+        DynamicParameters sqlParameters = new(); // Wee need to use DynamicParameters for single row results
+        sqlParameters.Add("@EmailParam", email, DbType.String);
+        return _data.LoadDataSingleWithParams<UserForLoginConfirmationDto>(sql, sqlParameters);
     }
 }

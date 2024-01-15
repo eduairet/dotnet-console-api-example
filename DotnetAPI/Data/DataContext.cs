@@ -26,6 +26,16 @@ public class DataContext
         SqlConnection dbConnection = new(_connectionString);
         return dbConnection.QuerySingle<T>(sql);
     }
+    public IEnumerable<T> LoadDataWithParams<T>(string sql, List<SqlParameter> sqlParameters)
+    {
+        SqlConnection dbConnection = new(_connectionString);
+        return dbConnection.Query<T>(sql, sqlParameters);
+    }
+    public T LoadDataSingleWithParams<T>(string sql, DynamicParameters sqlParameters)
+    {
+        SqlConnection dbConnection = new(_connectionString);
+        return dbConnection.QuerySingle<T>(sql, sqlParameters);
+    }
     public bool ExecuteSql(string sql)
     {
         SqlConnection dbConnection = new(_connectionString);

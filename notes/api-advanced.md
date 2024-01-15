@@ -14,3 +14,30 @@
         return users;
     }
     ```
+
+-   In order to improve the security of our dapper endpoints we need to use parameterized queries
+
+    -   These are used to prevent SQL injection attacks
+    -   Types of parameterized queries
+
+        -   `List<SqlParameter>` are used for for queries that return multiple rows
+            ```C#
+            string sqlAddAuth = @$"EXEC TutorialAppSchema.spAuth_Upsert @Email = @EmailParam,
+            @PasswordHash = @PasswordHashParam,
+            @PasswordSalt = @PasswordSaltParam";
+            List<SqlParameter> sqlParameters = [];
+            SqlParameter emailParameter = new("@EmailParam", SqlDbType.VarChar) { Value = email };
+            sqlParameters.Add(emailParameter);
+            SqlParameter passwordSaltParameter = new("@PasswordHashParam", SqlDbType.VarBinary) { Value = passwordHash };
+            sqlParameters.Add(passwordSaltParameter);
+            SqlParameter passwordHashParameter = new("@PasswordSaltParam", SqlDbType.VarBinary) { Value = passwordSalt };
+            sqlParameters.Add(passwordHashParameter);
+            return _data.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters);
+            ```
+        -   `DynamicParameters` are used for single queries
+            ```C#
+            string sql = $"EXEC TutorialAppSchema.spAuth_Get @Email = @EmailParam";
+            DynamicParameters sqlParameters = new(); // Wee need to use DynamicParameters for single row results
+            sqlParameters.Add("@EmailParam", email, DbType.String);
+            return _data.LoadDataSingleWithParams<UserForLoginConfirmationDto>(sql, sqlParameters);
+            ```
