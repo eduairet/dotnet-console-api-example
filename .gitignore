@@ -481,3 +481,6 @@ $RECYCLE.BIN/
 
 # Environment variables
 .env*
+
+# Azure
+.azure

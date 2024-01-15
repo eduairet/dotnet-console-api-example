@@ -48,3 +48,4 @@
 17. [API Intermediate](./notes/api-intermediate.md)
 18. [Stored Procedures](./notes/stored-procedures.md)
 19. [API Advanced](./notes/api-advanced.md)
+20. [Deployment](./notes/deployment.md)
