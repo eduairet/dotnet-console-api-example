@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
 using DotnetAPI.Helpers;
+using AutoMapper;
 
 namespace DotnetAPI.Controllers;
 
@@ -12,7 +13,12 @@ namespace DotnetAPI.Controllers;
 public class AuthController(IConfiguration config) : ControllerBase
 {
     private readonly DataContext _data = new(config);
+    private readonly IMapper _mapper = new Mapper(new MapperConfiguration(cfg =>
+    {
+        cfg.CreateMap<UserForRegistrationDto, UserUpsertDto>();
+    }));
     private readonly AuthHelper _authHelper = new(config);
+    private readonly ReusableSql _reusableSql = new(config);
 
     [AllowAnonymous]
     [HttpPost("register")]
@@ -26,15 +32,9 @@ public class AuthController(IConfiguration config) : ControllerBase
             {
                 if (_authHelper.SetPassword(userForRegistration.Email, userForRegistration.Password))
                 {
-                    string sqlAddUser = @$"EXEC TutorialAppSchema.spUsers_Upsert @FirstName = '{userForRegistration.FirstName}'
-                                , @LastName = '{userForRegistration.LastName}'
-                                , @Email = '{userForRegistration.Email}'
-                                , @Gender = '{userForRegistration.Gender}'
-                                , @JobTitle = '{userForRegistration.JobTitle}'
-                                , @Department = '{userForRegistration.Department}'
-                                , @Salary = {userForRegistration.Salary}
-                                , @Active = 1";
-                    if (_data.ExecuteSql(sqlAddUser)) return Ok();
+                    UserUpsertDto user = _mapper.Map<UserUpsertDto>(userForRegistration);
+                    user.Active = true;
+                    if (_reusableSql.AddUser(user)) return Ok();
                 }
                 return BadRequest("Failed to register user");
             }
