@@ -57,3 +57,6 @@
         -   We're going to connect to the server using the server name, the username and password
     -   Once connected with the server we can populate the database with the tables and data
         -   We can use the SQL script to generate the tables and data
+    -   We'll need to add the connection string from the azure db to our app, it can be added in `appsettings.Production.json` or in `appsettings.json` if you're only going to work with the production DB (not recommended)
+-   In order to avoid unexpected charges you can delete the resources you created in Azure
+    -   Delete the resource group and all the resources in it
