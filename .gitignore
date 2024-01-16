@@ -484,3 +484,4 @@ $RECYCLE.BIN/
 
 # Azure
 .azure
+appsettings.Production.json
